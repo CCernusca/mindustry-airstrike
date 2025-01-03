@@ -1,2 +1,2 @@
 # mindustry-airstrike
-A mindustry mod adding airstrikes.
+A Mindustry mod adding airstrikes.

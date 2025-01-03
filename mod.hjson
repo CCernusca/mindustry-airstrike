@@ -1,0 +1,25 @@
+{
+  #the mod name as displayed in-game
+  displayName: "Mindustry Airstrike"
+
+  #the internal name of your mod
+  name: "airstrike-mod"
+
+  #your name
+  author: "Cra-C-Guy"
+
+  #the fully qualified main class of the mod
+  main: "airstrike.AirstrikeMod"
+
+  #the mod description as seen in the mod dialog
+  description: "A Mindustry mod adding airstrikes."
+
+  #the mod version
+  version: 0.0
+
+  #the minimum game build required to run this mod
+  minGameVersion: 145
+
+  #this is a java mod
+  java: true
+}

@@ -19,6 +19,7 @@ public class AirstrikeBlocks {
             launchTime = 60f * 20;
             hasPower = true;
             consumePower(1f);
+            alwaysUnlocked = true;
         }};
     }
 }

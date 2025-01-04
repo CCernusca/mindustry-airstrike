@@ -2,17 +2,22 @@ package airstrike.world.blocks;
 
 import arc.*;
 import arc.math.*;
-import arc.scene.ui.layout.*;
+import arc.util.Log;
 import mindustry.content.*;
 import mindustry.entities.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
-import mindustry.type.*;
+import mindustry.type.Item;
+import mindustry.type.ItemStack;
 import mindustry.ui.*;
 import mindustry.world.blocks.campaign.LaunchPad;
-import mindustry.world.meta.*;
+import mindustry.content.Planets;
+import mindustry.Vars;
+import mindustry.type.Planet;
+import mindustry.type.Sector;
+import airstrike.AirstrikeMod;
 
-import static mindustry.Vars.*;
+import java.util.HashMap;
 
 public class Launcher extends LaunchPad {
 
@@ -43,6 +48,25 @@ public class Launcher extends LaunchPad {
         public void updateTile() {
             // Increment launchCounter and "launch" items when full
             if ((launchCounter += edelta()) >= launchTime && items.total() > 0) {
+
+                // TODO: Replace items with actual satellites
+
+                // Get current planet, if possible
+                Planet currentPlanet = AirstrikeMod.getCurrentPlanet();
+                // If on planet, update its satellites with item
+                if (currentPlanet != null) {
+                    HashMap<Integer, Integer> currentPlanetSatellites = AirstrikeMod.getSatellites(currentPlanet);
+                    Item item = items.first();
+                    int satelliteCount = 0;
+                    if (currentPlanetSatellites != null && currentPlanetSatellites.containsKey((int) item.id)) {
+                        satelliteCount = currentPlanetSatellites.get((int) item.id);
+                    }
+                    currentPlanetSatellites.put((int) item.id, satelliteCount + items.get(item));
+                }
+
+                // Debug: Show all satellites
+                Log.info(AirstrikeMod.planetSatellites);
+
                 consume(); // Consume resources
                 launchSound.at(x, y);
                 Fx.launchPod.at(this);

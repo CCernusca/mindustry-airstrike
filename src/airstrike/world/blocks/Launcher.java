@@ -7,6 +7,7 @@ import mindustry.content.*;
 import mindustry.entities.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
+import mindustry.io.SaveIO;
 import mindustry.type.Item;
 import mindustry.type.ItemStack;
 import mindustry.ui.*;
@@ -15,6 +16,8 @@ import mindustry.content.Planets;
 import mindustry.Vars;
 import mindustry.type.Planet;
 import mindustry.type.Sector;
+import mindustry.game.Saves;
+
 import airstrike.AirstrikeMod;
 
 import java.util.HashMap;
@@ -51,21 +54,34 @@ public class Launcher extends LaunchPad {
 
                 // TODO: Replace items with actual satellites
 
+                Log.info(AirstrikeMod.getCurrentSectorId());
+
                 // Get current planet, if possible
                 Planet currentPlanet = AirstrikeMod.getCurrentPlanet();
-                // If on planet, update its satellites with item
+                HashMap<String, Integer> currentSatellites;
                 if (currentPlanet != null) {
-                    HashMap<Integer, Integer> currentPlanetSatellites = AirstrikeMod.getSatellites(currentPlanet);
+                    // If on planet, update its satellites with item
+                    currentSatellites = AirstrikeMod.getSatellitesPlanet(String.valueOf(currentPlanet.id));
                     Item item = items.first();
                     int satelliteCount = 0;
-                    if (currentPlanetSatellites != null && currentPlanetSatellites.containsKey((int) item.id)) {
-                        satelliteCount = currentPlanetSatellites.get((int) item.id);
+                    if (currentSatellites != null && currentSatellites.containsKey(String.valueOf(item.id))) {
+                        satelliteCount = currentSatellites.get(String.valueOf(item.id));
                     }
-                    currentPlanetSatellites.put((int) item.id, satelliteCount + items.get(item));
+                    currentSatellites.put(String.valueOf(item.id), satelliteCount + items.get(item));
+                } else {
+                    // If not on planet, update sector satellites with item
+                    String currentSectorId = AirstrikeMod.getCurrentSectorId();
+                    currentSatellites = AirstrikeMod.getSatellitesSector(currentSectorId);
+                    Item item = items.first();
+                    int satelliteCount = 0;
+                    if (currentSatellites != null && currentSatellites.containsKey(String.valueOf(item.id))) {
+                        satelliteCount = currentSatellites.get(String.valueOf(item.id));
+                    }
+                    currentSatellites.put(String.valueOf(item.id), satelliteCount + items.get(item));
                 }
 
-                // Debug: Show all satellites
-                Log.info(AirstrikeMod.planetSatellites);
+                // Debug: Show all satellites in orbit of this planet/sector
+                Log.info(currentSatellites);
 
                 consume(); // Consume resources
                 launchSound.at(x, y);

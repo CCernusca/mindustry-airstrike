@@ -1,6 +1,6 @@
 package airstrike.content;
 
-import airstrike.world.blocks.Launcher;
+import airstrike.blocks.Launcher;
 import mindustry.content.Items;
 import mindustry.type.Category;
 import mindustry.world.Block;

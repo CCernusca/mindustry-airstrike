@@ -1,6 +1,7 @@
 package airstrike;
 
 import airstrike.content.AirstrikeBlocks;
+import airstrike.content.AirstrikeItems;
 import arc.Core;
 import arc.files.Fi;
 import arc.util.Log;
@@ -8,6 +9,7 @@ import arc.util.serialization.Json;
 import arc.util.serialization.JsonValue;
 import mindustry.Vars;
 import mindustry.mod.*;
+import mindustry.type.Item;
 import mindustry.type.Planet;
 
 import java.io.File;
@@ -40,6 +42,7 @@ public class AirstrikeMod extends Mod {
     public void loadContent() {
         super.loadContent();
         AirstrikeBlocks.load();
+        AirstrikeItems.load();
 
         ensureDataDirectoryExists();
         loadSatelliteData();
@@ -228,6 +231,7 @@ public class AirstrikeMod extends Mod {
         }
     }
 
+    // Method for ensuring satellite data is up to date
     public static void correctSatelliteData() {
         // Saves to check if satellite data is up to date with active planets/sectors
         HashMap<Planet, LinkedList<Integer>> saves = getSaves();
@@ -254,6 +258,7 @@ public class AirstrikeMod extends Mod {
                 Log.info("Removing Planet " + planetId + " from satellite data.");
                 toRemove.add(planetId);
             }
+            ensureCorrectSatelliteDataItems(planetSatellites.get(planetId));
         }
         for (String planetId : toRemove) {
             planetSatellites.remove(planetId);
@@ -266,6 +271,7 @@ public class AirstrikeMod extends Mod {
                     Log.info("Removing Non-Planet sector " + sectorId + " from satellite data.");
                     toRemove.add(sectorId);
                 }
+                ensureCorrectSatelliteDataItems(sectorSatellites.get(sectorId));
             }
         } else {
             for (String sectorId : sectorSatellites.keySet()) {
@@ -276,6 +282,29 @@ public class AirstrikeMod extends Mod {
         for (String sectorId : toRemove) {
             sectorSatellites.remove(sectorId);
         }
+    }
+
+    // Method for ensuring satellite data items are up to date
+    public static void ensureCorrectSatelliteDataItems(HashMap<String, Integer> items) {
+        LinkedList<String> toRemove = new LinkedList<>();
+        for (String itemId : items.keySet()) {
+            if (!itemExists(itemId)) {
+                Log.info("Removing invalid Item " + itemId + " from satellite data.");
+                toRemove.add(itemId);
+            }
+        }
+        for (String itemId : toRemove) {
+            items.remove(itemId);
+        }
+    }
+
+    public static boolean itemExists(String itemId) {
+        for (Item item : Vars.content.items()) {
+            if (String.valueOf(item.id).equals(itemId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Method for handling the data directory

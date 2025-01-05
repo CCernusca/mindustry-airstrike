@@ -2,6 +2,7 @@ package airstrike;
 
 import airstrike.content.AirstrikeBlocks;
 import airstrike.content.AirstrikeItems;
+import airstrike.content.AirstrikeWeapons;
 import arc.Core;
 import arc.files.Fi;
 import arc.util.Log;
@@ -43,6 +44,7 @@ public class AirstrikeMod extends Mod {
         super.loadContent();
         AirstrikeBlocks.load();
         AirstrikeItems.load();
+        AirstrikeWeapons.load();
 
         ensureDataDirectoryExists();
         loadSatelliteData();

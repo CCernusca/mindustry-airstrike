@@ -12,6 +12,7 @@ public class AirstrikeBlocks {
     public static Block launcher;
 
     public static void load() {
+
         launcher = new Launcher("launcher") {{
             requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 1));
             size = 5;
@@ -22,4 +23,5 @@ public class AirstrikeBlocks {
             alwaysUnlocked = true;
         }};
     }
+
 }

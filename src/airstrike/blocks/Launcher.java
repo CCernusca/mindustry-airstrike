@@ -1,5 +1,6 @@
 package airstrike.blocks;
 
+import airstrike.content.AirstrikeWeapons;
 import arc.*;
 import arc.math.*;
 import arc.util.Log;
@@ -54,8 +55,6 @@ public class Launcher extends LaunchPad {
 
                 // TODO: Replace items with actual satellites
 
-                Log.info(AirstrikeMod.getCurrentSectorId());
-
                 // Get current planet, if possible
                 Planet currentPlanet = AirstrikeMod.getCurrentPlanet();
                 HashMap<String, Integer> currentSatellites;
@@ -80,8 +79,8 @@ public class Launcher extends LaunchPad {
                     currentSatellites.put(String.valueOf(item.id), satelliteCount + items.get(item));
                 }
 
-                // Debug: Show all satellites in orbit of this planet/sector
-                Log.info(currentSatellites);
+//                // Debug: Show all satellites in orbit of this planet/sector
+//                Log.info(currentSatellites);
 
                 consume(); // Consume resources
                 launchSound.at(x, y);

@@ -1,24 +1,29 @@
 package airstrike.world.blocks;
 
 import arc.*;
+import arc.graphics.Color;
 import arc.math.*;
+import arc.scene.ui.Image;
+import arc.scene.ui.layout.Table;
+import arc.struct.Bits;
 import arc.util.Log;
+import arc.util.Scaling;
+import arc.util.Strings;
 import mindustry.content.*;
 import mindustry.entities.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.io.SaveIO;
-import mindustry.type.Item;
-import mindustry.type.ItemStack;
+import mindustry.type.*;
 import mindustry.ui.*;
 import mindustry.world.blocks.campaign.LaunchPad;
 import mindustry.content.Planets;
 import mindustry.Vars;
-import mindustry.type.Planet;
-import mindustry.type.Sector;
 import mindustry.game.Saves;
 
 import airstrike.AirstrikeMod;
+import mindustry.world.meta.StatUnit;
+import mindustry.world.modules.ItemModule;
 
 import java.util.HashMap;
 
@@ -26,6 +31,7 @@ public class Launcher extends LaunchPad {
 
     public Launcher(String name) {
         super(name);
+        this.configurable = false;
     }
 
     @Override
@@ -51,11 +57,6 @@ public class Launcher extends LaunchPad {
         public void updateTile() {
             // Increment launchCounter and "launch" items when full
             if ((launchCounter += edelta()) >= launchTime && items.total() > 0) {
-
-                // TODO: Replace items with actual satellites
-
-                Log.info(AirstrikeMod.getCurrentSectorId());
-
                 // Get current planet, if possible
                 Planet currentPlanet = AirstrikeMod.getCurrentPlanet();
                 HashMap<String, Integer> currentSatellites;
@@ -100,6 +101,111 @@ public class Launcher extends LaunchPad {
                 items.clear();
 
                 launchCounter = 0f;
+            }
+        }
+
+        @Override
+        public void buildConfiguration(Table table) {
+            // Override without calling super to disable the destination selection UI
+            deselect();
+        }
+
+        @Override
+        public boolean onConfigureBuildTapped(Building other) {
+            // Return false to prevent configuration interface
+            return false;
+        }
+
+        @Override
+        public void display(Table table) {
+            // display implementation from Building (superclass of Launchpad), to avoid displaying destination
+
+            table.table((t) -> {
+                t.left();
+                t.add(new Image(this.block.getDisplayIcon(this.tile))).size(32.0F);
+                t.labelWrap(this.block.getDisplayName(this.tile)).left().width(190.0F).padLeft(5.0F);
+            }).growX().left();
+            table.row();
+            if (this.team == Vars.player.team()) {
+                table.table((bars) -> {
+                    bars.defaults().growX().height(18.0F).pad(4.0F);
+                    this.displayBars(bars);
+                }).growX();
+                table.row();
+                table.table(this::displayConsumption).growX();
+                boolean displayFlow = (this.block.category == Category.distribution || this.block.category == Category.liquid) && this.block.displayFlow;
+                if (displayFlow) {
+                    String ps = " " + StatUnit.perSecond.localized();
+                    ItemModule flowItems = this.flowItems();
+                    if (flowItems != null) {
+                        table.row();
+                        table.left();
+                        table.table((l) -> {
+                            Bits current = new Bits();
+                            Runnable rebuild = () -> {
+                                l.clearChildren();
+                                l.left();
+
+                                for(Item item : Vars.content.items()) {
+                                    if (flowItems.hasFlowItem(item)) {
+                                        l.image(item.uiIcon).scaling(Scaling.fit).padRight(3.0F);
+                                        l.label(() -> flowItems.getFlowRate(item) < 0.0F ? "..." : Strings.fixed(flowItems.getFlowRate(item), 1) + ps).color(Color.lightGray);
+                                        l.row();
+                                    }
+                                }
+
+                            };
+                            rebuild.run();
+                            l.update(() -> {
+                                for(Item item : Vars.content.items()) {
+                                    if (flowItems.hasFlowItem(item) && !current.get(item.id)) {
+                                        current.set(item.id);
+                                        rebuild.run();
+                                    }
+                                }
+
+                            });
+                        }).left();
+                    }
+
+                    if (this.liquids != null) {
+                        table.row();
+                        table.left();
+                        table.table((l) -> {
+                            Bits current = new Bits();
+                            Runnable rebuild = () -> {
+                                l.clearChildren();
+                                l.left();
+
+                                for(Liquid liquid : Vars.content.liquids()) {
+                                    if (this.liquids.hasFlowLiquid(liquid)) {
+                                        l.image(liquid.uiIcon).scaling(Scaling.fit).size(32.0F).padRight(3.0F);
+                                        l.label(() -> this.liquids.getFlowRate(liquid) < 0.0F ? "..." : Strings.fixed(this.liquids.getFlowRate(liquid), 1) + ps).color(Color.lightGray);
+                                        l.row();
+                                    }
+                                }
+
+                            };
+                            rebuild.run();
+                            l.update(() -> {
+                                for(Liquid liquid : Vars.content.liquids()) {
+                                    if (this.liquids.hasFlowLiquid(liquid) && !current.get(liquid.id)) {
+                                        current.set(liquid.id);
+                                        rebuild.run();
+                                    }
+                                }
+
+                            });
+                        }).left();
+                    }
+                }
+
+                if (Vars.net.active() && this.lastAccessed != null) {
+                    table.row();
+                    table.add(Core.bundle.format("lastaccessed", new Object[]{this.lastAccessed})).growX().wrap().left();
+                }
+
+                table.marginBottom(-5.0F);
             }
         }
     }

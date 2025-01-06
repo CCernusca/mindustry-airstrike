@@ -2,6 +2,7 @@ package airstrike.content;
 
 import airstrike.world.blocks.Launcher;
 import mindustry.content.Items;
+import mindustry.gen.Sounds;
 import mindustry.type.Category;
 import mindustry.world.Block;
 import mindustry.world.meta.BuildVisibility;
@@ -20,6 +21,7 @@ public class AirstrikeBlocks {
             hasPower = true;
             consumePower(1f);
             alwaysUnlocked = true;
+            launchSound = Sounds.missileLaunch;
         }};
     }
 }

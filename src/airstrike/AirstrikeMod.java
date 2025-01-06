@@ -417,30 +417,34 @@ public class AirstrikeMod extends Mod {
         if (currentPlanet != null) {
             // If on planet, update its satellites with item
             currentSatellites = AirstrikeMod.getSatellitesPlanet(String.valueOf(currentPlanet.id));
-            int newSatelliteCount = currentSatellites.get(String.valueOf(weapon.id)) - amount;
-            if (newSatelliteCount > 0) {
-                currentSatellites.put(String.valueOf(weapon.id), newSatelliteCount);
-                return true;
-            } else if (newSatelliteCount == 0) {
-                currentSatellites.remove(String.valueOf(weapon.id));
-                return true;
-            } else {
-                Log.err("Invalid amount: " + newSatelliteCount + " of " + currentSatellites.get(String.valueOf(weapon.id)));
+            if (currentSatellites.containsKey(weapon.id)) {
+                int newSatelliteCount = currentSatellites.get(weapon.id) - amount;
+                if (newSatelliteCount > 0) {
+                    currentSatellites.put(String.valueOf(weapon.id), newSatelliteCount);
+                    return true;
+                } else if (newSatelliteCount == 0) {
+                    currentSatellites.remove(String.valueOf(weapon.id));
+                    return true;
+                } else {
+                    Log.err("Invalid amount: " + newSatelliteCount + " of " + currentSatellites.get(String.valueOf(weapon.id)));
+                }
             }
             return false;
         } else {
             // If not on planet, update sector satellites with item
             String currentSectorId = AirstrikeMod.getCurrentSectorId();
             currentSatellites = AirstrikeMod.getSatellitesSector(currentSectorId);
-            int newSatelliteCount = currentSatellites.get(String.valueOf(weapon.id)) - amount;
-            if (newSatelliteCount > 0) {
-                currentSatellites.put(String.valueOf(weapon.id), newSatelliteCount);
-                return true;
-            } else if (newSatelliteCount == 0) {
-                currentSatellites.remove(String.valueOf(weapon.id));
-                return true;
-            } else {
-                Log.err("Invalid amount: " + newSatelliteCount + " of " + currentSatellites.get(String.valueOf(weapon.id)));
+            if (currentSatellites.containsKey(weapon.id)) {
+                int newSatelliteCount = currentSatellites.get(String.valueOf(weapon.id)) - amount;
+                if (newSatelliteCount > 0) {
+                    currentSatellites.put(String.valueOf(weapon.id), newSatelliteCount);
+                    return true;
+                } else if (newSatelliteCount == 0) {
+                    currentSatellites.remove(String.valueOf(weapon.id));
+                    return true;
+                } else {
+                    Log.err("Invalid amount: " + newSatelliteCount + " of " + currentSatellites.get(String.valueOf(weapon.id)));
+                }
             }
             return false;
         }
@@ -453,5 +457,15 @@ public class AirstrikeMod extends Mod {
         } else {
             return getSatellitesPlanet(currentPlanet.name);
         }
+    }
+
+    public static int getSatelliteCount() {
+        HashMap<String, Integer> satellites = getSatallites();
+
+        int count = 0;
+        for (int weaponCount : satellites.values()) {
+            count += weaponCount;
+        }
+        return count;
     }
 }

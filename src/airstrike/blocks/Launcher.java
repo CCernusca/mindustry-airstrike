@@ -1,5 +1,7 @@
-package airstrike.world.blocks;
+package airstrike.blocks;
 
+import airstrike.content.AirstrikeWeapons;
+import airstrike.items.SatelliteItem;
 import arc.*;
 import arc.math.*;
 import arc.util.Log;
@@ -52,36 +54,7 @@ public class Launcher extends LaunchPad {
             // Increment launchCounter and "launch" items when full
             if ((launchCounter += edelta()) >= launchTime && items.total() > 0) {
 
-                // TODO: Replace items with actual satellites
-
-                Log.info(AirstrikeMod.getCurrentSectorId());
-
-                // Get current planet, if possible
-                Planet currentPlanet = AirstrikeMod.getCurrentPlanet();
-                HashMap<String, Integer> currentSatellites;
-                if (currentPlanet != null) {
-                    // If on planet, update its satellites with item
-                    currentSatellites = AirstrikeMod.getSatellitesPlanet(String.valueOf(currentPlanet.id));
-                    Item item = items.first();
-                    int satelliteCount = 0;
-                    if (currentSatellites != null && currentSatellites.containsKey(String.valueOf(item.id))) {
-                        satelliteCount = currentSatellites.get(String.valueOf(item.id));
-                    }
-                    currentSatellites.put(String.valueOf(item.id), satelliteCount + items.get(item));
-                } else {
-                    // If not on planet, update sector satellites with item
-                    String currentSectorId = AirstrikeMod.getCurrentSectorId();
-                    currentSatellites = AirstrikeMod.getSatellitesSector(currentSectorId);
-                    Item item = items.first();
-                    int satelliteCount = 0;
-                    if (currentSatellites != null && currentSatellites.containsKey(String.valueOf(item.id))) {
-                        satelliteCount = currentSatellites.get(String.valueOf(item.id));
-                    }
-                    currentSatellites.put(String.valueOf(item.id), satelliteCount + items.get(item));
-                }
-
-                // Debug: Show all satellites in orbit of this planet/sector
-                Log.info(currentSatellites);
+                AirstrikeMod.addWeapon(((SatelliteItem) items.first()).getWeapon(), 1);
 
                 consume(); // Consume resources
                 launchSound.at(x, y);
@@ -101,6 +74,12 @@ public class Launcher extends LaunchPad {
 
                 launchCounter = 0f;
             }
+        }
+
+        // Only accepts SatelliteItems
+        @Override
+        public boolean acceptItem(Building source, Item item) {
+            return super.acceptItem(source, item) && item instanceof SatelliteItem;
         }
     }
 }

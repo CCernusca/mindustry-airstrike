@@ -1,5 +1,6 @@
 package airstrike;
 
+import airstrike.airstrikeweapons.AirstrikeWeapon;
 import airstrike.content.AirstrikeBlocks;
 import airstrike.content.AirstrikeItems;
 import airstrike.content.AirstrikeWeapons;
@@ -43,8 +44,8 @@ public class AirstrikeMod extends Mod {
     public void loadContent() {
         super.loadContent();
         AirstrikeBlocks.load();
+        AirstrikeWeapons.load();  // Weapons must be loaded before Items, as they are used by Items
         AirstrikeItems.load();
-        AirstrikeWeapons.load();
 
         ensureDataDirectoryExists();
         loadSatelliteData();
@@ -114,11 +115,11 @@ public class AirstrikeMod extends Mod {
             jsonBuilder.append("\"planets\":{");
             // Iterate over each planet and its associated items
             for (Map.Entry<String, HashMap<String, Integer>> entry : planetSatellites.entrySet()) {
-                String planetId = entry.getKey();
+                String planetName = entry.getKey();
                 HashMap<String, Integer> items = entry.getValue();
 
                 // Append the planet ID and its items to the JSON string
-                jsonBuilder.append("\"").append(planetId).append("\":{");
+                jsonBuilder.append("\"").append(planetName).append("\":{");
                 for (Map.Entry<String, Integer> itemEntry : items.entrySet()) {
                     String itemId = itemEntry.getKey();
                     Integer count = itemEntry.getValue();
@@ -195,14 +196,14 @@ public class AirstrikeMod extends Mod {
                     if (type.equals("planets")) {
                         Log.info("Loading planet satellite data...");
                         for (JsonValue planetValue : typeValue) {
-                            String planetId = planetValue.name;
+                            String planetName = planetValue.name;
                             HashMap<String, Integer> satellites = new HashMap<>();
                             for (JsonValue itemValue : planetValue) {
                                 String itemId = itemValue.name;
                                 int amount = itemValue.asInt();
                                 satellites.put(itemId, amount);
                             }
-                            planetSatellites.put(planetId, satellites);
+                            planetSatellites.put(planetName, satellites);
                         }
                     } else if (type.equals("sectors")) {
                         Log.info("Loading sector satellite data...");
@@ -236,18 +237,24 @@ public class AirstrikeMod extends Mod {
     // Method for ensuring satellite data is up to date
     public static void correctSatelliteData() {
         // Saves to check if satellite data is up to date with active planets/sectors
+        if (planetSatellites == null) {
+            planetSatellites = new HashMap<>();
+        }
+        if (sectorSatellites == null) {
+            sectorSatellites = new HashMap<>();
+        }
         HashMap<Planet, LinkedList<Integer>> saves = getSaves();
         // Add missing planets/sectors
         for (Planet planet : saves.keySet()) {
             if (planet != null) {
-                if (!planetSatellites.containsKey(String.valueOf(planet.id))) {
-                    Log.info("Adding Planet " + planet.name + " to satellite data.");
-                    planetSatellites.put(String.valueOf(planet.id), new HashMap<String, Integer>());
+                if (!planetSatellites.containsKey(String.valueOf(planet.name))) {
+                    Log.info("Adding untracked Planet " + planet.name + " to satellite data.");
+                    planetSatellites.put(String.valueOf(planet.name), new HashMap<String, Integer>());
                 }
             } else {
                 for (int sectorId : saves.get(null)) {
                     if (!sectorSatellites.containsKey(String.valueOf(sectorId))) {
-                        Log.info("Adding Non-Planet sector " + sectorId + " to satellite data.");
+                        Log.info("Adding untracked non-planet Sector " + sectorId + " to satellite data.");
                         sectorSatellites.put(String.valueOf(sectorId), new HashMap<String, Integer>());
                     }
                 }
@@ -255,12 +262,12 @@ public class AirstrikeMod extends Mod {
         }
         // Remove planets that are no longer active
         LinkedList<String> toRemove = new LinkedList<>();
-        for (String planetId : planetSatellites.keySet()) {
-            if (!saves.containsKey(getPlanetById(planetId))) {
-                Log.info("Removing Planet " + planetId + " from satellite data.");
-                toRemove.add(planetId);
+        for (String planetName : planetSatellites.keySet()) {
+            if (getPlanetByName(planetName) == null || !saves.containsKey(getPlanetByName(planetName))) {
+                Log.info("Removing invalid Planet " + planetName + " from satellite data.");
+                toRemove.add(planetName);
             }
-            ensureCorrectSatelliteDataItems(planetSatellites.get(planetId));
+            correctSatelliteDataWeapons(planetSatellites.get(planetName));
         }
         for (String planetId : toRemove) {
             planetSatellites.remove(planetId);
@@ -270,14 +277,14 @@ public class AirstrikeMod extends Mod {
         if (saves.containsKey(null)) {
             for (String sectorId : sectorSatellites.keySet()) {
                 if (!saves.get(null).contains(Integer.parseInt(sectorId))) {
-                    Log.info("Removing Non-Planet sector " + sectorId + " from satellite data.");
+                    Log.info("Removing invalid non-planet sector " + sectorId + " from satellite data.");
                     toRemove.add(sectorId);
                 }
-                ensureCorrectSatelliteDataItems(sectorSatellites.get(sectorId));
+                correctSatelliteDataWeapons(sectorSatellites.get(sectorId));
             }
         } else {
             for (String sectorId : sectorSatellites.keySet()) {
-                Log.info("Removing Non-Planet sector " + sectorId + " from satellite data.");
+                Log.info("Removing invalid non-planet sector " + sectorId + " from satellite data.");
                 toRemove.add(sectorId);
             }
         }
@@ -286,17 +293,17 @@ public class AirstrikeMod extends Mod {
         }
     }
 
-    // Method for ensuring satellite data items are up to date
-    public static void ensureCorrectSatelliteDataItems(HashMap<String, Integer> items) {
+    // Method for ensuring satellite data weapons are up to date
+    public static void correctSatelliteDataWeapons(HashMap<String, Integer> weapons) {
         LinkedList<String> toRemove = new LinkedList<>();
-        for (String itemId : items.keySet()) {
-            if (!itemExists(itemId)) {
-                Log.info("Removing invalid Item " + itemId + " from satellite data.");
-                toRemove.add(itemId);
+        for (String weaponId : weapons.keySet()) {
+            if (AirstrikeWeapons.get(weaponId) == null) {
+                Log.info("Removing invalid weapon " + weaponId + " from satellite data.");
+                toRemove.add(weaponId);
             }
         }
         for (String itemId : toRemove) {
-            items.remove(itemId);
+            weapons.remove(itemId);
         }
     }
 
@@ -328,9 +335,9 @@ public class AirstrikeMod extends Mod {
     }
 
     // Method for retrieving satellite data (from planets)
-    public static HashMap<String, Integer> getSatellitesPlanet(String planetId) {
-        if (planetSatellites.containsKey(planetId)) {
-            HashMap<String, Integer> satellites = planetSatellites.get(planetId);
+    public static HashMap<String, Integer> getSatellitesPlanet(String planetName) {
+        if (planetSatellites.containsKey(planetName)) {
+            HashMap<String, Integer> satellites = planetSatellites.get(planetName);
             if (satellites == null) {
                 satellites = new HashMap<String, Integer>();
             }
@@ -369,5 +376,73 @@ public class AirstrikeMod extends Mod {
             }
         }
         return null;
+    }
+
+    public static void addWeapon(AirstrikeWeapon weapon, int amount) {
+        if (weapon == null) {
+            Log.err("Invalid weapon: " + weapon);
+            return;
+        }
+        // Get current planet, if possible
+        Planet currentPlanet = AirstrikeMod.getCurrentPlanet();
+        HashMap<String, Integer> currentSatellites;
+        if (currentPlanet != null) {
+            // If on planet, update its satellites with item
+            currentSatellites = AirstrikeMod.getSatellitesPlanet(String.valueOf(currentPlanet.id));
+            int satelliteCount = 0;
+            if (currentSatellites != null && currentSatellites.containsKey(String.valueOf(weapon.id))) {
+                satelliteCount = currentSatellites.get(String.valueOf(weapon.id));
+            }
+            currentSatellites.put(String.valueOf(weapon.id), satelliteCount + amount);
+        } else {
+            // If not on planet, update sector satellites with item
+            String currentSectorId = AirstrikeMod.getCurrentSectorId();
+            currentSatellites = AirstrikeMod.getSatellitesSector(currentSectorId);
+            int satelliteCount = 0;
+            if (currentSatellites != null && currentSatellites.containsKey(String.valueOf(weapon.id))) {
+                satelliteCount = currentSatellites.get(String.valueOf(weapon.id));
+            }
+            currentSatellites.put(String.valueOf(weapon.id), satelliteCount + amount);
+        }
+    }
+
+    public static boolean removeWeapon(AirstrikeWeapon weapon, int amount) {
+        if (weapon == null) {
+            Log.err("Invalid weapon: " + weapon);
+            return false;
+        }
+        // Get current planet, if possible
+        Planet currentPlanet = AirstrikeMod.getCurrentPlanet();
+        HashMap<String, Integer> currentSatellites;
+        if (currentPlanet != null) {
+            // If on planet, update its satellites with item
+            currentSatellites = AirstrikeMod.getSatellitesPlanet(String.valueOf(currentPlanet.id));
+            int newSatelliteCount = currentSatellites.get(String.valueOf(weapon.id)) - amount;
+            if (newSatelliteCount > 0) {
+                currentSatellites.put(String.valueOf(weapon.id), newSatelliteCount);
+                return true;
+            } else if (newSatelliteCount == 0) {
+                currentSatellites.remove(String.valueOf(weapon.id));
+                return true;
+            } else {
+                Log.err("Invalid amount: " + newSatelliteCount + " of " + currentSatellites.get(String.valueOf(weapon.id)));
+            }
+            return false;
+        } else {
+            // If not on planet, update sector satellites with item
+            String currentSectorId = AirstrikeMod.getCurrentSectorId();
+            currentSatellites = AirstrikeMod.getSatellitesSector(currentSectorId);
+            int newSatelliteCount = currentSatellites.get(String.valueOf(weapon.id)) - amount;
+            if (newSatelliteCount > 0) {
+                currentSatellites.put(String.valueOf(weapon.id), newSatelliteCount);
+                return true;
+            } else if (newSatelliteCount == 0) {
+                currentSatellites.remove(String.valueOf(weapon.id));
+                return true;
+            } else {
+                Log.err("Invalid amount: " + newSatelliteCount + " of " + currentSatellites.get(String.valueOf(weapon.id)));
+            }
+            return false;
+        }
     }
 }

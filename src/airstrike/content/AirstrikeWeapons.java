@@ -79,7 +79,6 @@ public class AirstrikeWeapons {
                 // Apply damage to buildings (works in tile space)
                 Damage.tileDamage(null, tilex, tiley, explosionRadius, explosionDamage, null);
             }
-
         };
 
     }

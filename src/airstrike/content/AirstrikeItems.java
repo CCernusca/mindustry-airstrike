@@ -1,14 +1,14 @@
 package airstrike.content;
 
 import airstrike.items.SatelliteItem;
-import mindustry.type.Item;
+import arc.util.Log;
 
 public class AirstrikeItems {
-    public static Item satelliteItem;
+    public static SatelliteItem nukeSatellite;
 
     public static void load() {
 
-        satelliteItem = new SatelliteItem("nuke-satellite") {{
+        nukeSatellite = new SatelliteItem("nuke-satellite") {{
             weapon = AirstrikeWeapons.nuke;
             alwaysUnlocked = true;
         }};

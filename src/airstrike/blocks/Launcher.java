@@ -1,4 +1,4 @@
-package airstrike.world.blocks;
+package airstrike.blocks;
 
 import arc.*;
 import arc.graphics.Color;

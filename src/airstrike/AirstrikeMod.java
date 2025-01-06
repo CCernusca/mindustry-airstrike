@@ -380,7 +380,7 @@ public class AirstrikeMod extends Mod {
 
     public static void addWeapon(AirstrikeWeapon weapon, int amount) {
         if (weapon == null) {
-            Log.err("Invalid weapon: " + weapon);
+            Log.err("Invalid weapon: null");
             return;
         }
         // Get current planet, if possible
@@ -443,6 +443,15 @@ public class AirstrikeMod extends Mod {
                 Log.err("Invalid amount: " + newSatelliteCount + " of " + currentSatellites.get(String.valueOf(weapon.id)));
             }
             return false;
+        }
+    }
+
+    public static HashMap<String, Integer> getSatallites() {
+        Planet currentPlanet = getCurrentPlanet();
+        if (currentPlanet == null) {
+            return getSatellitesSector(getCurrentSectorId());
+        } else {
+            return getSatellitesPlanet(currentPlanet.name);
         }
     }
 }

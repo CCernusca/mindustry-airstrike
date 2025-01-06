@@ -1,6 +1,7 @@
 package airstrike.content;
 
 import airstrike.blocks.Launcher;
+import airstrike.blocks.OrbitalMonitor;
 import mindustry.content.Items;
 import mindustry.gen.Sounds;
 import mindustry.type.Category;
@@ -11,6 +12,7 @@ import static mindustry.type.ItemStack.with;
 
 public class AirstrikeBlocks {
     public static Block launcher;
+    public static Block orbitalMonitor;
 
     public static void load() {
         launcher = new Launcher("launcher") {{
@@ -22,6 +24,12 @@ public class AirstrikeBlocks {
             consumePower(1f);
             alwaysUnlocked = true;
             launchSound = Sounds.missileLaunch;
+        }};
+
+        orbitalMonitor = new OrbitalMonitor("orbital-monitor") {{
+            requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 1));
+            size = 2;
+            alwaysUnlocked = true;
         }};
     }
 }

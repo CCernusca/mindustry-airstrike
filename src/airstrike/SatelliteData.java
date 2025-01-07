@@ -14,11 +14,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+// TODO: Use vanilla Mindustry save system to store data
+
 public class SatelliteData {
-    // Satellite data for planets (planet-id: (item-id: amount))
-    public static HashMap<String, HashMap<String, Integer>> planetSatellites = new HashMap<>();
-    // Satellite data for sectors without planets (sector-id: (item-id: amount))
-    public static HashMap<String, HashMap<String, Integer>> sectorSatellites = new HashMap<>();
+    // Satellite data for planets (planet-id: (weapon1-id, weapon2-id, ...))
+    public static HashMap<String, LinkedList<String>> planetSatellites = new HashMap<>();
+    // Satellite data for sectors without planets (sector-id: (weapon1-id, weapon2-id, ...))
+    public static HashMap<String, LinkedList<String>> sectorSatellites = new HashMap<>();
     // Path to satellite data storage
     public static final String dataFilePath = "mods/airstrike-data/satellite_data.json";
 
@@ -27,17 +29,17 @@ public class SatelliteData {
 
     /**
      * Retrieves the satellite data for the specified planet.
-     * If the planet has no associated satellite data, a new empty map is returned.
+     * If the planet has no associated satellite data, a new empty list is returned.
      *
      * @param planetName the name of the planet for which to retrieve satellite data
-     * @return a map of weapon IDs to their counts for the given planet,
+     * @return a list of weapon IDs for the given planet,
      *         or null if the planet has no satellite data
      */
-    public static HashMap<String, Integer> getSatellitesPlanet(String planetName) {
+    public static LinkedList<String> getSatellitesPlanet(String planetName) {
         if (planetSatellites.containsKey(planetName)) {
-            HashMap<String, Integer> satellites = planetSatellites.get(planetName);
+            LinkedList<String> satellites = planetSatellites.get(planetName);
             if (satellites == null) {
-                satellites = new HashMap<String, Integer>();
+                satellites = new LinkedList<>();
             }
             return satellites;
         } else {
@@ -47,17 +49,17 @@ public class SatelliteData {
 
     /**
      * Retrieves the satellite data for the specified sector.
-     * If the sector has no associated satellite data, a new empty map is returned.
+     * If the sector has no associated satellite data, a new empty list is returned.
      *
      * @param sectorId the id of the sector for which to retrieve satellite data
-     * @return a map of weapon IDs to their counts for the given sector,
+     * @return a list of weapon IDs for the given sector,
      *         or null if the sector has no satellite data
      */
-    public static HashMap<String, Integer> getSatellitesSector(String sectorId) {
+    public static LinkedList<String> getSatellitesSector(String sectorId) {
         if (sectorSatellites.containsKey(sectorId)) {
-            HashMap<String, Integer> satellites = sectorSatellites.get(sectorId);
+            LinkedList<String> satellites = sectorSatellites.get(sectorId);
             if (satellites == null) {
-                satellites = new HashMap<String, Integer>();
+                satellites = new LinkedList<>();
             }
             return satellites;
         } else {
@@ -72,9 +74,9 @@ public class SatelliteData {
      * associated with that planet. If the player is not on a planet, it returns
      * the satellite data associated with the current sector.
      *
-     * @return a map of weapon IDs to their counts for the current planet or sector, or null if the location has no satellite data
+     * @return a list of weapon IDs for the current planet or sector, or null if the location has no satellite data
      */
-    public static HashMap<String, Integer> getSatellites() {
+    public static LinkedList<String> getSatellites() {
         Planet currentPlanet = AirstrilkeUtils.getCurrentPlanet();
         if (currentPlanet == null) {
             return getSatellitesSector(AirstrilkeUtils.getCurrentSectorId());
@@ -92,10 +94,10 @@ public class SatelliteData {
      *
      * @param planetNameOrSectorId the ID of the planet or sector for which to
      *                              retrieve satellite data
-     * @return a map of weapon IDs to their counts for the given planet or sector,
+     * @return a list of weapon IDs for the given planet or sector,
      *         or null if the location has no satellite data
      */
-    public static HashMap<String, Integer> getSatellites(String planetNameOrSectorId) {
+    public static LinkedList<String> getSatellites(String planetNameOrSectorId) {
         if (planetSatellites.containsKey(planetNameOrSectorId)) {
             return getSatellitesPlanet(planetNameOrSectorId);
         } else {
@@ -111,11 +113,7 @@ public class SatelliteData {
      * @return the total number of satellites in orbit of the current sector or planet
      */
     public static int getWeaponCount() {
-        int totalWeaponCount = 0;
-        for (int weaponCount : getSatellites().values()) {
-            totalWeaponCount += weaponCount;
-        }
-        return totalWeaponCount;
+        return getWeaponCount(AirstrilkeUtils.getCurrentSectorId());
     }
 
     /**
@@ -128,11 +126,7 @@ public class SatelliteData {
      * @return the total number of weapons in orbit of the specified planet or sector
      */
     public static int getWeaponCount(String planetNameOrSectorId) {
-        int totalWeaponCount = 0;
-        for (int weaponCount : getSatellites(planetNameOrSectorId).values()) {
-            totalWeaponCount += weaponCount;
-        }
-        return totalWeaponCount;
+        return getSatellites(planetNameOrSectorId).size();
     }
 
     /**
@@ -144,8 +138,14 @@ public class SatelliteData {
      * @return the number of weapons with the given ID in orbit of the current sector or planet
      */
     public static int getWeaponCountOfWeapon(String weaponId) {
-        HashMap<String, Integer> satellites = getSatellites();
-        return satellites.getOrDefault(weaponId, 0);
+        LinkedList<String> satellites = getSatellites();
+        int count = 0;
+        for (String id : satellites) {
+            if (id.equals(weaponId)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**
@@ -159,9 +159,7 @@ public class SatelliteData {
     public static int getTotalWeaponCountPlanet() {
         int totalWeaponCount = 0;
         for (String planetName : planetSatellites.keySet()) {
-            for (int weaponCount : planetSatellites.get(planetName).values()) {
-                totalWeaponCount += weaponCount;
-            }
+            totalWeaponCount += getWeaponCount(planetName);
         }
         return totalWeaponCount;
     }
@@ -177,102 +175,9 @@ public class SatelliteData {
     public static int getTotalWeaponCountSector() {
         int totalWeaponCount = 0;
         for (String sectorId : sectorSatellites.keySet()) {
-            for (int weaponCount : sectorSatellites.get(sectorId).values()) {
-                totalWeaponCount += weaponCount;
-            }
+            totalWeaponCount += getWeaponCount(sectorId);
         }
         return totalWeaponCount;
-    }
-
-    /**
-     * Retrieves an array of weapon IDs for all weapons in orbit of the current sector or planet.
-     * <p>
-     * The array is a flattened version of the map returned by {@link #getSatellites()}.
-     * All weapons are repeated according to their count in the map.
-     *
-     * @return a flattened array of weapon IDs
-     */
-    public static String[] getWeapons() {
-        String[] weapons = new String[getWeaponCount()];
-        HashMap<String, Integer> satellites = getSatellites();
-        int index = 0;
-        for (String weaponId : satellites.keySet()) {
-            int weaponCount = satellites.get(weaponId);
-            for (int i = 0; i < weaponCount; i++) {
-                weapons[index] = weaponId;
-                index++;
-            }
-        }
-        return weapons;
-    }
-
-    /**
-     * Retrieves an array of weapon IDs for all weapons in orbit of the given sector or planet.
-     * <p>
-     * The array is a flattened version of the map returned by {@link #getSatellites(String)}.
-     * All weapons are repeated according to their count in the map.
-     *
-     * @param planetNameOrSectorId the name of the planet or the id of the sector to retrieve weapons for
-     * @return a flattened array of weapon IDs
-     */
-    public static String[] getWeapons(String planetNameOrSectorId) {
-        String[] weapons = new String[getWeaponCountOfWeapon(planetNameOrSectorId)];
-        HashMap<String, Integer> satellites = getSatellites(planetNameOrSectorId);
-        int index = 0;
-        for (String weaponId : satellites.keySet()) {
-            int weaponCount = satellites.get(weaponId);
-            for (int i = 0; i < weaponCount; i++) {
-                weapons[index] = weaponId;
-                index++;
-            }
-        }
-        return weapons;
-    }
-
-    /**
-     * Retrieves an array of all weapon IDs in orbit of all planets.
-     * <p>
-     * The array is a flattened version of the map returned by {@link #getSatellitesPlanet(String)}.
-     * All weapons are repeated according to their count in the map.
-     *
-     * @return a flattened array of all weapon IDs in orbit of all planets
-     */
-    public static String[] getTotalWeaponsPlanet() {
-        String[] weapons = new String[getTotalWeaponCountPlanet()];
-        int index = 0;
-        for (String planetName : planetSatellites.keySet()) {
-            for (String weaponId : planetSatellites.get(planetName).keySet()) {
-                int weaponCount = planetSatellites.get(planetName).get(weaponId);
-                for (int i = 0; i < weaponCount; i++) {
-                    weapons[index] = weaponId;
-                    index++;
-                }
-            }
-        }
-        return weapons;
-    }
-
-    /**
-     * Retrieves an array of all weapon IDs of all weapons in orbit of all sectors.
-     * <p>
-     * The array is a flattened version of the map returned by {@link #getSatellitesSector(String)}.
-     * All weapons are repeated according to their count in the map.
-     *
-     * @return a flattened array of weapon IDs
-     */
-    public static String[] getTotalWeaponsSector() {
-        String[] weapons = new String[getTotalWeaponCountSector()];
-        int index = 0;
-        for (String sectorId : sectorSatellites.keySet()) {
-            for (String weaponId : sectorSatellites.get(sectorId).keySet()) {
-                int weaponCount = sectorSatellites.get(sectorId).get(weaponId);
-                for (int i = 0; i < weaponCount; i++) {
-                    weapons[index] = weaponId;
-                    index++;
-                }
-            }
-        }
-        return weapons;
     }
 
     /**
@@ -285,13 +190,15 @@ public class SatelliteData {
      * @param amount the number of weapons to add
      */
     public static void addWeaponToPlanet(String planetName, AirstrikeWeapon weapon, int amount) {
-        HashMap<String, Integer> satellites = getSatellitesPlanet(planetName);
+        LinkedList<String> satellites = getSatellitesPlanet(planetName);
         int weaponCount = getWeaponCountOfWeapon(weapon.id);
         if (satellites == null) {
             Log.err("Planet " + planetName + " not in satellite data");
             return;
         }
-        satellites.put(weapon.id, weaponCount + amount);
+        for (int i = 0; i < amount; i++) {
+            satellites.add(weapon.id);
+        }
     }
 
     /**
@@ -304,13 +211,15 @@ public class SatelliteData {
      * @param amount the number of weapons to add
      */
     public static void addWeaponToSector(String sectorId, AirstrikeWeapon weapon, int amount) {
-        HashMap<String, Integer> satellites = getSatellitesSector(sectorId);
+        LinkedList<String> satellites = getSatellitesSector(sectorId);
         int weaponCount = getWeaponCountOfWeapon(weapon.id);
         if (satellites == null) {
             Log.err("Sector " + sectorId + " not in satellite data");
             return;
         }
-        satellites.put(weapon.id, weaponCount + amount);
+        for (int i = 0; i < amount; i++) {
+            satellites.add(weapon.id);
+        }
     }
 
     /**
@@ -361,7 +270,7 @@ public class SatelliteData {
      * @return true if the removal was successful, false otherwise
      */
     public static boolean removeWeaponFromPlanet(String planetName, AirstrikeWeapon weapon, int amount) {
-        HashMap<String, Integer> satellites = getSatellitesPlanet(planetName);
+        LinkedList<String> satellites = getSatellitesPlanet(planetName);
         int weaponCount = getWeaponCountOfWeapon(weapon.id);
         if (satellites == null) {
             Log.err("Planet " + planetName + " not in satellite data");
@@ -370,7 +279,9 @@ public class SatelliteData {
         if (weaponCount < amount) {
             return false;
         }
-        satellites.put(weapon.id, weaponCount - amount);
+        for (int i = 0; i < amount; i++) {
+            satellites.remove(weapon.id);
+        }
         return true;
     }
 
@@ -389,7 +300,7 @@ public class SatelliteData {
      * @return true if the removal was successful, false otherwise
      */
     public static boolean removeWeaponFromSector(String sectorId, AirstrikeWeapon weapon, int amount) {
-        HashMap<String, Integer> satellites = getSatellitesSector(sectorId);
+        LinkedList<String> satellites = getSatellitesSector(sectorId);
         int weaponCount = getWeaponCountOfWeapon(weapon.id);
         if (satellites == null) {
             Log.err("Sector " + sectorId + " not in satellite data");
@@ -398,7 +309,9 @@ public class SatelliteData {
         if (weaponCount < amount) {
             return false;
         }
-        satellites.put(weapon.id, weaponCount - amount);
+        for (int i = 0; i < amount; i++) {
+            satellites.remove(weapon.id);
+        }
         return true;
     }
 
@@ -462,13 +375,13 @@ public class SatelliteData {
             if (planet != null) {
                 if (!planetSatellites.containsKey(String.valueOf(planet.name))) {
                     Log.info("Adding untracked Planet " + planet.name + " to satellite data.");
-                    planetSatellites.put(String.valueOf(planet.name), new HashMap<String, Integer>());
+                    planetSatellites.put(String.valueOf(planet.name), new LinkedList<String>());
                 }
             } else {
                 for (int sectorId : saves.get(null)) {
                     if (!sectorSatellites.containsKey(String.valueOf(sectorId))) {
                         Log.info("Adding untracked non-planet Sector " + sectorId + " to satellite data.");
-                        sectorSatellites.put(String.valueOf(sectorId), new HashMap<String, Integer>());
+                        sectorSatellites.put(String.valueOf(sectorId), new LinkedList<String>());
                     }
                 }
             }
@@ -507,17 +420,17 @@ public class SatelliteData {
     }
 
     /**
-     * Removes any invalid weapons from the given map of weapons.
+     * Removes any invalid weapons from the given list of weapons.
      * <p>
-     * A weapon is considered invalid if it is not present in the {@link AirstrikeWeapons} map.
+     * A weapon is considered invalid if it is not present in the {@link AirstrikeWeapons} fields.
      * <p>
-     * This method is idempotent and does not modify the map if it does not contain any invalid weapons.
+     * This method is idempotent and does not modify the list if it does not contain any invalid weapons.
      *
-     * @param weapons the map of weapons to clean up
+     * @param weapons the list of weapons to clean up
      */
-    public static void correctSatelliteDataWeapons(HashMap<String, Integer> weapons) {
+    public static void correctSatelliteDataWeapons(LinkedList<String> weapons) {
         LinkedList<String> toRemove = new LinkedList<>();
-        for (String weaponId : weapons.keySet()) {
+        for (String weaponId : weapons) {
             if (AirstrikeWeapons.get(weaponId) == null) {
                 Log.info("Removing invalid weapon " + weaponId + " from satellite data.");
                 toRemove.add(weaponId);
@@ -556,22 +469,20 @@ public class SatelliteData {
 
             jsonBuilder.append("\"planets\":{");
             // Iterate over each planet and its associated items
-            for (Map.Entry<String, HashMap<String, Integer>> entry : planetSatellites.entrySet()) {
+            for (Map.Entry<String, LinkedList<String>> entry : planetSatellites.entrySet()) {
                 String planetName = entry.getKey();
-                HashMap<String, Integer> items = entry.getValue();
+                LinkedList<String> items = entry.getValue();
 
                 // Append the planet ID and its items to the JSON string
-                jsonBuilder.append("\"").append(planetName).append("\":{");
-                for (Map.Entry<String, Integer> itemEntry : items.entrySet()) {
-                    String itemId = itemEntry.getKey();
-                    Integer count = itemEntry.getValue();
-                    jsonBuilder.append("\"").append(itemId).append("\":").append(count).append(",");
+                jsonBuilder.append("\"").append(planetName).append("\":[");
+                for (String item : items) {
+                    jsonBuilder.append("\"").append(item).append("\",");
                 }
                 // Remove the trailing comma and close the planet's JSON object
                 if (!items.isEmpty()) {
                     jsonBuilder.setLength(jsonBuilder.length() - 1);
                 }
-                jsonBuilder.append("},");
+                jsonBuilder.append("],");
             }
             // Remove the trailing comma and close the main JSON object
             if (!planetSatellites.isEmpty()) {
@@ -581,22 +492,19 @@ public class SatelliteData {
 
             jsonBuilder.append(",\"sectors\":{");
             // Iterate over each sector and its associated items
-            for (Map.Entry<String, HashMap<String, Integer>> entry : sectorSatellites.entrySet()) {
+            for (Map.Entry<String, LinkedList<String>> entry : sectorSatellites.entrySet()) {
                 String sectorId = entry.getKey();
-                HashMap<String, Integer> items = entry.getValue();
+                LinkedList<String> items = entry.getValue();
 
                 // Append the sector ID and its items to the JSON string
-                jsonBuilder.append("\"").append(sectorId).append("\":{");
-                for (Map.Entry<String, Integer> itemEntry : items.entrySet()) {
-                    String itemId = itemEntry.getKey();
-                    Integer count = itemEntry.getValue();
-                    jsonBuilder.append("\"").append(itemId).append("\":").append(count).append(",");
+                jsonBuilder.append("\"").append(sectorId).append("\":[");
+                for (String item : items) {
+                    jsonBuilder.append("\"").append(item).append("\",");
                 }
-                // Remove the trailing comma and close the sector's JSON object
                 if (!items.isEmpty()) {
                     jsonBuilder.setLength(jsonBuilder.length() - 1);
                 }
-                jsonBuilder.append("},");
+                jsonBuilder.append("],");
             }
             // Remove the trailing comma and close the main JSON object
             if (!sectorSatellites.isEmpty()) {
@@ -652,11 +560,10 @@ public class SatelliteData {
                         Log.info("Loading planet satellite data...");
                         for (JsonValue planetValue : typeValue) {
                             String planetName = planetValue.name;
-                            HashMap<String, Integer> satellites = new HashMap<>();
+                            LinkedList<String> satellites = new LinkedList<>();
                             for (JsonValue itemValue : planetValue) {
-                                String itemId = itemValue.name;
-                                int amount = itemValue.asInt();
-                                satellites.put(itemId, amount);
+                                String itemId = itemValue.toString();
+                                satellites.add(itemId);
                             }
                             planetSatellites.put(planetName, satellites);
                         }
@@ -664,11 +571,10 @@ public class SatelliteData {
                         Log.info("Loading sector satellite data...");
                         for (JsonValue sectorValue : typeValue) {
                             String sectorId = sectorValue.name;
-                            HashMap<String, Integer> satellites = new HashMap<>();
+                            LinkedList<String> satellites = new LinkedList<>();
                             for (JsonValue itemValue : sectorValue) {
-                                String itemId = itemValue.name;
-                                int amount = itemValue.asInt();
-                                satellites.put(itemId, amount);
+                                String itemId = itemValue.toString();
+                                satellites.add(itemId);
                             }
                             sectorSatellites.put(sectorId, satellites);
                         }

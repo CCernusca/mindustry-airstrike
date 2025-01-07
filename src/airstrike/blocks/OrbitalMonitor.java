@@ -1,6 +1,5 @@
 package airstrike.blocks;
 
-import airstrike.AirstrikeMod;
 import airstrike.SatelliteData;
 import airstrike.airstrikeweapons.AirstrikeWeapon;
 import airstrike.content.AirstrikeWeapons;
@@ -15,7 +14,7 @@ import mindustry.gen.Building;
 import mindustry.ui.Styles;
 import mindustry.world.Block;
 
-import java.util.HashMap;
+import java.util.LinkedList;
 
 public class OrbitalMonitor extends Block {
 
@@ -44,21 +43,18 @@ public class OrbitalMonitor extends Block {
             weaponsTable.background(Styles.black6);
 
             // Retrieve the available airstrike weapons
-            HashMap<String, Integer> weapons = SatelliteData.getSatellites();
+            LinkedList<String> weapons = SatelliteData.getSatellites();
             // Iterate through the weapons and add them to the weaponsTable
-            for (String weaponId : weapons.keySet()) {
-                int weaponAmount = weapons.get(weaponId);
+            for (String weaponId : weapons) {
                 AirstrikeWeapon weapon = AirstrikeWeapons.get(weaponId);
                 if (weapon == null) {
                     Log.err("Invalid weapon");
                     continue;
                 }
                 String weaponName = weapon.name;
-                for (int i = 0; i < weaponAmount; i++) {
-                    Label label = new Label(weaponName, Styles.defaultLabel);
-                    label.setAlignment(Align.center, Align.center);
-                    weaponsTable.add(label).pad(10).row();
-                }
+                Label label = new Label(weaponName, Styles.defaultLabel);
+                label.setAlignment(Align.center, Align.center);
+                weaponsTable.add(label).pad(10).row();
             }
 
             // Create a ScrollPane to make the weaponsTable scrollable

@@ -1,6 +1,7 @@
 package airstrike.blocks;
 
 import airstrike.AirstrikeMod;
+import airstrike.SatelliteData;
 import airstrike.airstrikeweapons.AirstrikeWeapon;
 import airstrike.content.AirstrikeWeapons;
 import arc.graphics.Color;
@@ -40,7 +41,7 @@ public class Beacon extends Block {
         public void call() {
             if (selected < weapons.size()) {
                 AirstrikeWeapon selectedWeapon = weapons.get(selected);
-                if (AirstrikeMod.removeWeapon(selectedWeapon, 1)) {
+                if (SatelliteData.removeWeapon(selectedWeapon, 1)) {
                     deselect();
                     selected = 0; // Reset selection, in case block is not destroyed
                     selectedWeapon.impact(tile, impactDelay);
@@ -57,7 +58,7 @@ public class Beacon extends Block {
         public void updateTile() {
             super.updateTile();
 
-            HashMap<String, Integer> satellites = AirstrikeMod.getSatallites();
+            HashMap<String, Integer> satellites = SatelliteData.getSatellites();
             weapons.clear();
             for (String weaponId : satellites.keySet()) {
                 int weaponAmount = satellites.get(weaponId);
@@ -92,7 +93,7 @@ public class Beacon extends Block {
             yellowOutlineStyle.font = Styles.defaultLabel.font; // Use the default font
 
             // Retrieve the available airstrike weapons
-            HashMap<String, Integer> satellites = AirstrikeMod.getSatallites();
+            HashMap<String, Integer> satellites = SatelliteData.getSatellites();
             // Iterate through the weapons and add them to the weaponsTable
             int index = 0;
             for (String weaponId : satellites.keySet()) {

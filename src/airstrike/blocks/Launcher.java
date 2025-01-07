@@ -1,5 +1,6 @@
 package airstrike.blocks;
 
+import airstrike.SatelliteData;
 import airstrike.items.SatelliteItem;
 import arc.*;
 import arc.graphics.Color;
@@ -58,7 +59,7 @@ public class Launcher extends LaunchPad {
         public void updateTile() {
             // Increment launchCounter and "launch" items when full
             if ((launchCounter += edelta()) >= launchTime && items.total() > 0) {
-                AirstrikeMod.addWeapon(((SatelliteItem) items.first()).getWeapon(), 1);
+                SatelliteData.addWeapon(((SatelliteItem) items.first()).getWeapon(), 1);
 
                 consume(); // Consume resources
                 launchSound.at(x, y);

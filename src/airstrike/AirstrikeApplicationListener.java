@@ -36,7 +36,7 @@ public class AirstrikeApplicationListener implements ApplicationListener {
     public void exit() {
         ApplicationListener.super.exit();
         Log.info("Game is exiting, saving satellite data...");
-        AirstrikeMod.correctSatelliteData();
-        AirstrikeMod.saveSatelliteData();
+        SatelliteData.correctSatelliteData();
+        SatelliteData.saveSatelliteData();
     }
 }

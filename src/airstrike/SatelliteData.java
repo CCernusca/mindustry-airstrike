@@ -6,7 +6,6 @@ import arc.files.Fi;
 import arc.util.Log;
 import arc.util.serialization.Json;
 import arc.util.serialization.JsonValue;
-import arc.util.serialization.Json.JsonSerializable;
 import mindustry.Vars;
 import mindustry.type.Planet;
 
@@ -14,18 +13,15 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-// TODO: Use vanilla Mindustry save system to store data
-
 public class SatelliteData {
     // Satellite data for planets (planet-id: (weapon1-id, weapon2-id, ...))
     public static HashMap<String, LinkedList<String>> planetSatellites = new HashMap<>();
     // Satellite data for sectors without planets (sector-id: (weapon1-id, weapon2-id, ...))
     public static HashMap<String, LinkedList<String>> sectorSatellites = new HashMap<>();
     // Path to satellite data storage
-    public static final String dataFilePath = "mods/airstrike-data/satellite_data.json";
+    public static final String dataFilePath = "saves/airstrike-data/satellite_data.json";
 
-    public SatelliteData() {
-    }
+    public SatelliteData() {}
 
     /**
      * Retrieves the satellite data for the specified planet.

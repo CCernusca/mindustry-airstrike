@@ -12,11 +12,9 @@ import arc.scene.ui.TextButton;
 import arc.scene.ui.layout.Table;
 import arc.util.Align;
 import arc.util.Log;
-import arc.util.Timer;
 import mindustry.gen.Building;
 import mindustry.ui.Styles;
 import mindustry.world.Block;
-import mindustry.world.Tile;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -40,18 +38,14 @@ public class Beacon extends Block {
     public class BeaconBuild extends Building {
 
         public void call() {
-            deselect();
             if (selected < weapons.size()) {
-                if (AirstrikeMod.removeWeapon(weapons.get(selected), 1)) {
-                    // Schedule the impact after the delay
-                    Timer.schedule(() -> {
-                        // Ensure thread safety
-                        synchronized (this) {
-                            weapons.get(selected).impact(tile);
-                            selected = 0; // Reset the selection after impact
-                        }
-                    }, impactDelay);
+                AirstrikeWeapon selectedWeapon = weapons.get(selected);
+                if (AirstrikeMod.removeWeapon(selectedWeapon, 1)) {
+                    deselect();
+                    selected = 0; // Reset selection, in case block is not destroyed
+                    selectedWeapon.impact(tile, impactDelay);
                 } else {
+                    // Should be impossible, only weapons in orbit are displayed
                     Log.err("Selected weapon not in orbit");
                 }
             } else {

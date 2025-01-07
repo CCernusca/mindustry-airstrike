@@ -8,6 +8,7 @@ import arc.graphics.g2d.Fill;
 import arc.math.Interp;
 import arc.math.Mathf;
 import arc.util.Log;
+import arc.util.Timer;
 import mindustry.Vars;
 import mindustry.entities.Damage;
 import mindustry.entities.Effect;
@@ -32,7 +33,7 @@ public class AirstrikeWeapons {
 
         nuke = new AirstrikeWeapon("airstrikeweapon-nuke", "Nuke") {
             @Override
-            public void impact(Tile impactTile) {
+            public void onImpact(Tile impactTile) {
                 // Radius in tiles
                 float explosionRadius = 40f;
                 float explosionDamage = 10000f;
@@ -80,7 +81,6 @@ public class AirstrikeWeapons {
                 Damage.tileDamage(null, tilex, tiley, explosionRadius, explosionDamage, null);
             }
         };
-
     }
 
     public static AirstrikeWeapon get(String id) {

@@ -1,6 +1,6 @@
 package airstrike.blocks;
 
-import airstrike.SatelliteData;
+import airstrike.OrbitalData;
 import airstrike.airstrikeweapons.AirstrikeWeapon;
 import airstrike.content.AirstrikeWeapons;
 import arc.scene.ui.Button;
@@ -43,7 +43,7 @@ public class OrbitalMonitor extends Block {
             weaponsTable.background(Styles.black6);
 
             // Retrieve the available airstrike weapons
-            LinkedList<String> weapons = SatelliteData.getSatellites();
+            LinkedList<String> weapons = OrbitalData.getOrbitalWeapons();
             // Iterate through the weapons and add them to the weaponsTable
             for (String weaponId : weapons) {
                 AirstrikeWeapon weapon = AirstrikeWeapons.get(weaponId);

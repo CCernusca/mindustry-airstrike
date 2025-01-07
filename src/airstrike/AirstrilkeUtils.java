@@ -1,6 +1,5 @@
 package airstrike;
 
-import airstrike.airstrikeweapons.AirstrikeWeapon;
 import arc.util.Log;
 import mindustry.Vars;
 import mindustry.type.Planet;
@@ -12,9 +11,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
-
-import static airstrike.SatelliteData.planetSatellites;
-import static airstrike.SatelliteData.sectorSatellites;
 
 public class AirstrilkeUtils {
 
@@ -121,7 +117,7 @@ public class AirstrilkeUtils {
     }
 
     /**
-     * Ensures that the data directory for satellite data exists.
+     * Ensures that the data directory for orbital data exists.
      * <p>
      * This method checks if the parent directory of the data file path exists.
      * If it does not exist, it creates the directory along with any necessary
@@ -131,7 +127,7 @@ public class AirstrilkeUtils {
     public static void ensureDataDirectoryExists() {
         try {
             // Retrieve the parent directory of the data file
-            Path parentDir = Paths.get(Vars.dataDirectory.child(SatelliteData.dataFilePath).parent().absolutePath());
+            Path parentDir = Paths.get(Vars.dataDirectory.child(OrbitalData.dataFilePath).parent().absolutePath());
             if (parentDir != null && Files.notExists(parentDir)) {
                 // Create the directory, including any necessary but nonexistent parent directories
                 Files.createDirectories(parentDir);
@@ -142,6 +138,24 @@ public class AirstrilkeUtils {
         } catch (IOException e) {
             // Log the exception using Log.info
             Log.info("Failed to create data directory: @", e.getMessage());
+        }
+    }
+
+    /**
+     * Returns the name of the current planet if the player is on a planet, or the id of the current sector if not.
+     * <p>
+     * This method calls {@link #getCurrentPlanet()} and {@link #getCurrentSectorId()} to determine the current location.
+     * If the player is on a planet, it returns the name of the planet. Otherwise, it returns the id of the sector.
+     * <p>
+     * This method is useful for logging purposes, as it provides a human-readable name for the current location.
+     * @return the name of the current planet or sector
+     */
+    public static String getLocation() {
+        Planet currentPlanet = getCurrentPlanet();
+        if (currentPlanet != null) {
+            return currentPlanet.name;
+        } else {
+            return getCurrentSectorId();
         }
     }
 }

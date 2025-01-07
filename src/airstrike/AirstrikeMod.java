@@ -25,9 +25,9 @@ public class AirstrikeMod extends Mod {
         AirstrikeWeapons.load();  // Weapons must be loaded before Items, as they are used by Items
         AirstrikeItems.load();
 
-        SatelliteData.loadSatelliteData();
-        Log.info("Planet Satellites: " + SatelliteData.planetSatellites);
-        Log.info("Sector Satellites: " + SatelliteData.sectorSatellites);
+        OrbitalData.loadOrbitalData();
+        Log.info("Planet orbital weapons: " + OrbitalData.planetOrbitalWeapons);
+        Log.info("Sector orbital weapons: " + OrbitalData.sectorOrbitalWeapons);
     }
 
 }

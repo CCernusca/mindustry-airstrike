@@ -1,6 +1,6 @@
 package airstrike.blocks;
 
-import airstrike.SatelliteData;
+import airstrike.OrbitalData;
 import airstrike.airstrikeweapons.AirstrikeWeapon;
 import airstrike.content.AirstrikeWeapons;
 import arc.graphics.Color;
@@ -39,7 +39,7 @@ public class Beacon extends Block {
         public void call() {
             if (selected < weapons.size()) {
                 AirstrikeWeapon selectedWeapon = weapons.get(selected);
-                if (SatelliteData.removeWeapon(selectedWeapon, 1)) {
+                if (OrbitalData.removeOrbitalWeapon(selectedWeapon)) {
                     deselect();
                     selected = 0; // Reset selection, in case block is not destroyed
                     selectedWeapon.impact(tile, impactDelay);
@@ -57,9 +57,9 @@ public class Beacon extends Block {
             super.updateTile();
 
             // Update the weapons list
-            LinkedList<String> satellites = SatelliteData.getSatellites();
+            LinkedList<String> orbitalWeapons = OrbitalData.getOrbitalWeapons();
             weapons.clear();
-            for (String weaponId : satellites) {
+            for (String weaponId : orbitalWeapons) {
                 AirstrikeWeapon weapon = AirstrikeWeapons.get(weaponId);
                 if (weapon == null) {
                     Log.err("Invalid weapon");

@@ -1,5 +1,6 @@
 package airstrike.blocks;
 
+import airstrike.OrbitalData;
 import airstrike.items.SatelliteItem;
 import arc.*;
 import arc.graphics.Color;
@@ -7,26 +8,19 @@ import arc.math.*;
 import arc.scene.ui.Image;
 import arc.scene.ui.layout.Table;
 import arc.struct.Bits;
-import arc.util.Log;
 import arc.util.Scaling;
 import arc.util.Strings;
 import mindustry.content.*;
 import mindustry.entities.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
-import mindustry.io.SaveIO;
 import mindustry.type.*;
 import mindustry.ui.*;
 import mindustry.world.blocks.campaign.LaunchPad;
-import mindustry.content.Planets;
 import mindustry.Vars;
-import mindustry.game.Saves;
 
-import airstrike.AirstrikeMod;
 import mindustry.world.meta.StatUnit;
 import mindustry.world.modules.ItemModule;
-
-import java.util.HashMap;
 
 public class Launcher extends LaunchPad {
 
@@ -58,7 +52,7 @@ public class Launcher extends LaunchPad {
         public void updateTile() {
             // Increment launchCounter and "launch" items when full
             if ((launchCounter += edelta()) >= launchTime && items.total() > 0) {
-                AirstrikeMod.addWeapon(((SatelliteItem) items.first()).getWeapon(), 1);
+                OrbitalData.addOrbitalWeapon(((SatelliteItem) items.first()).getWeapon());
 
                 consume(); // Consume resources
                 launchSound.at(x, y);

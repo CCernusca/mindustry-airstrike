@@ -1,6 +1,6 @@
 package airstrike.blocks;
 
-import airstrike.AirstrikeMod;
+import airstrike.OrbitalData;
 import airstrike.airstrikeweapons.AirstrikeWeapon;
 import airstrike.content.AirstrikeWeapons;
 import arc.graphics.Color;
@@ -16,7 +16,6 @@ import mindustry.gen.Building;
 import mindustry.ui.Styles;
 import mindustry.world.Block;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 
 public class Beacon extends Block {
@@ -40,7 +39,7 @@ public class Beacon extends Block {
         public void call() {
             if (selected < weapons.size()) {
                 AirstrikeWeapon selectedWeapon = weapons.get(selected);
-                if (AirstrikeMod.removeWeapon(selectedWeapon, 1)) {
+                if (OrbitalData.removeOrbitalWeapon(selectedWeapon)) {
                     deselect();
                     selected = 0; // Reset selection, in case block is not destroyed
                     selectedWeapon.impact(tile, impactDelay);
@@ -57,18 +56,16 @@ public class Beacon extends Block {
         public void updateTile() {
             super.updateTile();
 
-            HashMap<String, Integer> satellites = AirstrikeMod.getSatallites();
+            // Update the weapons list
+            LinkedList<String> orbitalWeapons = OrbitalData.getOrbitalWeapons();
             weapons.clear();
-            for (String weaponId : satellites.keySet()) {
-                int weaponAmount = satellites.get(weaponId);
+            for (String weaponId : orbitalWeapons) {
                 AirstrikeWeapon weapon = AirstrikeWeapons.get(weaponId);
                 if (weapon == null) {
                     Log.err("Invalid weapon");
                     continue;
                 }
-                for (int i = 0; i < weaponAmount; i++) {
-                    weapons.add(weapon);
-                }
+                weapons.add(weapon);
             }
         }
 
@@ -91,40 +88,29 @@ public class Beacon extends Block {
             yellowOutlineStyle.fontColor = Color.yellow; // Set the font color to yellow
             yellowOutlineStyle.font = Styles.defaultLabel.font; // Use the default font
 
-            // Retrieve the available airstrike weapons
-            HashMap<String, Integer> satellites = AirstrikeMod.getSatallites();
             // Iterate through the weapons and add them to the weaponsTable
             int index = 0;
-            for (String weaponId : satellites.keySet()) {
-                int weaponAmount = satellites.get(weaponId);
-                AirstrikeWeapon weapon = AirstrikeWeapons.get(weaponId);
-                if (weapon == null) {
-                    Log.err("Invalid weapon");
-                    continue;
+            for (AirstrikeWeapon weapon : weapons) {
+                Label weaponLabel = new Label(weapon.name, Styles.defaultLabel);
+                weaponLabel.touchable = Touchable.enabled; // Make the label touchable
+
+                // Add a click listener to handle selection
+                int finalIndex = index;
+                weaponLabel.clicked(() -> {
+                    selected = finalIndex;
+                    table.clear();
+                    buildConfiguration(table); // Refresh the configuration UI after selection
+                });
+
+                // Highlight selected
+                if (index == selected) {
+                    weaponLabel.setStyle(yellowOutlineStyle);
                 }
-                String weaponName = weapon.name;
-                for (int i = 0; i < weaponAmount; i++) {
-                    Label weaponLabel = new Label(weaponName, Styles.defaultLabel);
-                    weaponLabel.touchable = Touchable.enabled; // Make the label touchable
 
-                    // Add a click listener to handle selection
-                    int finalIndex = index;
-                    weaponLabel.clicked(() -> {
-                        selected = finalIndex;
-                        table.clear();
-                        buildConfiguration(table); // Refresh the configuration UI after selection
-                    });
+                weaponLabel.setAlignment(Align.center, Align.center);
+                weaponsTable.add(weaponLabel).pad(10).row();
 
-                    // Highlight selected
-                    if (index == selected) {
-                        weaponLabel.setStyle(yellowOutlineStyle);
-                    }
-
-                    weaponLabel.setAlignment(Align.center, Align.center);
-                    weaponsTable.add(weaponLabel).pad(10).row();
-
-                    index += 1;
-                }
+                index++;
             }
 
             // Create a ScrollPane to make the weaponsTable scrollable

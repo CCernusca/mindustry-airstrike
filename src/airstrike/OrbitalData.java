@@ -2,11 +2,10 @@ package airstrike;
 
 import airstrike.airstrikeweapons.AirstrikeWeapon;
 import airstrike.content.AirstrikeWeapons;
-import arc.files.Fi;
+import arc.Core;
 import arc.util.Log;
 import arc.util.serialization.Json;
 import arc.util.serialization.JsonValue;
-import mindustry.Vars;
 import mindustry.type.Planet;
 
 import java.util.HashMap;
@@ -18,8 +17,6 @@ public class OrbitalData {
     public static HashMap<String, LinkedList<String>> planetOrbitalWeapons = new HashMap<>();
     // Orbital data for sectors without planets (sector-id: (weapon1-id, weapon2-id, ...))
     public static HashMap<String, LinkedList<String>> sectorOrbitalWeapons = new HashMap<>();
-    // Path to orbital data storage
-    public static final String dataFilePath = "saves/airstrike-data/orbital_data.json";
 
     public OrbitalData() {}
 
@@ -93,7 +90,7 @@ public class OrbitalData {
      * @return a list of weapon IDs for the current planet or sector, or null if the location has no orbital data
      */
     public static LinkedList<String> getOrbitalWeapons() {
-        return getOrbitalWeapons(AirstrilkeUtils.getLocation());
+        return getOrbitalWeapons(AirstrikeUtils.getLocation());
     }
 
     /**
@@ -132,7 +129,7 @@ public class OrbitalData {
      * @return the total number of orbital weapons for the current sector or planet
      */
     public static int getCurrentOrbitalWeaponCount() {
-        return getOrbitalWeaponCount(AirstrilkeUtils.getLocation());
+        return getOrbitalWeaponCount(AirstrikeUtils.getLocation());
     }
 
     /**
@@ -144,7 +141,7 @@ public class OrbitalData {
      * @return the number of weapons with the given ID in orbit of the current sector or planet
      */
     public static int getCurrentOrbitalWeaponCount(String weaponId) {
-        return getOrbitalWeaponCount(AirstrilkeUtils.getLocation(), weaponId);
+        return getOrbitalWeaponCount(AirstrikeUtils.getLocation(), weaponId);
     }
 
     /**
@@ -198,9 +195,9 @@ public class OrbitalData {
      * @param amount the number of weapons to add
      */
     public static void addOrbitalWeapon(AirstrikeWeapon weapon, int amount) {
-        Planet planet = AirstrilkeUtils.getCurrentPlanet();
+        Planet planet = AirstrikeUtils.getCurrentPlanet();
         if (planet == null) {
-            addOrbitalWeaponToSector(AirstrilkeUtils.getCurrentSectorId(), weapon, amount);
+            addOrbitalWeaponToSector(AirstrikeUtils.getCurrentSectorId(), weapon, amount);
         } else {
             addOrbitalWeaponToPlanet(planet.name, weapon, amount);
         }
@@ -293,9 +290,9 @@ public class OrbitalData {
      * @return true if the removal was successful, false otherwise
      */
     public static boolean removeOrbitalWeapon(AirstrikeWeapon weapon, int amount) {
-        Planet planet = AirstrilkeUtils.getCurrentPlanet();
+        Planet planet = AirstrikeUtils.getCurrentPlanet();
         if (planet == null) {
-            return removeOrbitalWeaponFromSector(AirstrilkeUtils.getCurrentSectorId(), weapon, amount);
+            return removeOrbitalWeaponFromSector(AirstrikeUtils.getCurrentSectorId(), weapon, amount);
         } else {
             return removeOrbitalWeaponFromPlanet(planet.name, weapon, amount);
         }
@@ -334,7 +331,7 @@ public class OrbitalData {
             sectorOrbitalWeapons = new HashMap<>();
         }
         // Saves to check if orbital data is up to date with active planets/sectors (active = in saves - has been played)
-        HashMap<Planet, LinkedList<Integer>> saves = AirstrilkeUtils.getSaves();
+        HashMap<Planet, LinkedList<Integer>> saves = AirstrikeUtils.getSaves();
         // Add missing planets/sectors
         for (Planet planet : saves.keySet()) {
             if (planet != null) {
@@ -354,7 +351,7 @@ public class OrbitalData {
         // Remove planets that are no longer active
         LinkedList<String> toRemove = new LinkedList<>();
         for (String planetName : planetOrbitalWeapons.keySet()) {
-            if (AirstrilkeUtils.getPlanetByName(planetName) == null || !saves.containsKey(AirstrilkeUtils.getPlanetByName(planetName))) {
+            if (AirstrikeUtils.getPlanetByName(planetName) == null || !saves.containsKey(AirstrikeUtils.getPlanetByName(planetName))) {
                 Log.info("Removing invalid Planet " + planetName + " from orbital data.");
                 toRemove.add(planetName);
             }
@@ -413,156 +410,185 @@ public class OrbitalData {
     }
 
     /**
-     * Saves the current orbital data to the data file.
+     * Saves the orbital data to the game's settings.
      * <p>
-     * This method will overwrite any existing data in the file.
+     * This method first calls {@link #correctOrbitalData()} to ensure that the data is up to date and correct.
+     * It then saves the data to the game's settings using the key "airstrike-orbital-data".
      * <p>
-     * The data is saved in a JSON format, with two main objects: "planets" and "sectors".
-     * The "planets" object has each planet as a key and its associated items as a value.
-     * The "sectors" object has each sector as a key and its associated items as a value.
-     * Each item is represented as a key-value pair, with the item ID as the key and the count as the value.
-     * <p>
-     * This method ensures that the data directory exists before attempting to save the data using {@link AirstrilkeUtils#ensureDataDirectoryExists()}.
-     * It also calls {@link #correctOrbitalData()} to remove any invalid weapons from the data before saving.
+     * This method is called automatically by the mod whenever the game saves.
      */
     public static void saveOrbitalData() {
-        AirstrilkeUtils.ensureDataDirectoryExists();
+        Log.info("Saving orbital data");
 
+        // Correct the data before saving
         correctOrbitalData();
 
-        try {
-            // Save the data to the file
-            Fi file = Vars.dataDirectory.child(dataFilePath);
-            Log.info("Saving orbital data to: @", file.absolutePath());
+        // Save orbital data to settings
+        Core.settings.put("airstrike-orbital-data", serializedOrbitalData());
+        Core.settings.saveValues();
 
-            // Create a StringBuilder to construct the JSON string
-            StringBuilder jsonBuilder = new StringBuilder("{");
-
-            jsonBuilder.append("\"planets\":{");
-            // Iterate over each planet and its associated items
-            for (Map.Entry<String, LinkedList<String>> entry : planetOrbitalWeapons.entrySet()) {
-                String planetName = entry.getKey();
-                LinkedList<String> items = entry.getValue();
-
-                // Append the planet ID and its items to the JSON string
-                jsonBuilder.append("\"").append(planetName).append("\":[");
-                for (String item : items) {
-                    jsonBuilder.append("\"").append(item).append("\",");
-                }
-                // Remove the trailing comma and close the planet's JSON object
-                if (!items.isEmpty()) {
-                    jsonBuilder.setLength(jsonBuilder.length() - 1);
-                }
-                jsonBuilder.append("],");
-            }
-            // Remove the trailing comma and close the main JSON object
-            if (!planetOrbitalWeapons.isEmpty()) {
-                jsonBuilder.setLength(jsonBuilder.length() - 1);
-            }
-            jsonBuilder.append("}");
-
-            jsonBuilder.append(",\"sectors\":{");
-            // Iterate over each sector and its associated items
-            for (Map.Entry<String, LinkedList<String>> entry : sectorOrbitalWeapons.entrySet()) {
-                String sectorId = entry.getKey();
-                LinkedList<String> items = entry.getValue();
-
-                // Append the sector ID and its items to the JSON string
-                jsonBuilder.append("\"").append(sectorId).append("\":[");
-                for (String item : items) {
-                    jsonBuilder.append("\"").append(item).append("\",");
-                }
-                if (!items.isEmpty()) {
-                    jsonBuilder.setLength(jsonBuilder.length() - 1);
-                }
-                jsonBuilder.append("],");
-            }
-            // Remove the trailing comma and close the main JSON object
-            if (!sectorOrbitalWeapons.isEmpty()) {
-                jsonBuilder.setLength(jsonBuilder.length() - 1);
-            }
-            jsonBuilder.append("}");
-
-            jsonBuilder.append("}");
-
-            // Write the constructed JSON string to the file
-            file.writeString(jsonBuilder.toString());
-
-            Log.info("orbital data saved successfully.");
-        } catch (Exception e) {
-            Log.err("Failed to save orbital data.", e);
-        }
+        Log.info("Orbital data was saved: " + Core.settings.getString("airstrike-orbital-data", ""));
     }
 
     /**
-     * Loads the orbital data from a JSON file and initializes the planet and sector orbital data.
+     * Loads the orbital data from the game's settings.
      * <p>
-     * This method attempts to locate the orbital data file in the specified directory. If the file exists,
-     * it reads the JSON content and deserializes it into HashMaps representing the orbital data for planets
-     * and sectors. If the file does not exist or an error occurs during loading, empty data structures are
-     * initialized instead.
+     * This method first attempts to load the orbital data from the game's settings using the key "airstrike-orbital-data".
+     * If the data exists, it is then deserialized back into the {@link #planetOrbitalWeapons} and {@link #sectorOrbitalWeapons} fields.
      * <p>
-     * After loading the data, it invokes {@link #correctOrbitalData()} to ensure the data is up-to-date
-     * with the current game state.
-     * <p>
-     * Logs informative messages regarding the loading process and any errors encountered.
+     * This method is called automatically by the mod whenever the game loads.
      */
     public static void loadOrbitalData() {
-        try {
-            // Locate the file
-            Fi file = Vars.dataDirectory.child(dataFilePath);
-            Log.info("Looking for orbital data at: @", file.absolutePath());
+        Log.info("Loading orbital data");
 
-            if (file.exists()) {
-                // Create a JSON deserializer
-                Json json = new Json();
-                json.setTypeName(null); // Match what we saved
+        // Load orbital data from settings
+        String serializedData = Core.settings.getString("airstrike-orbital-data", "");
 
-                // Read the JSON data from the file
-                String data = file.readString();
-                JsonValue jsonData = json.fromJson(null, data);
+        // Check if orbital data exists
+        if (serializedData != null) {
+            // Deserialize it back into your object
+            deserializeOrbitalData(serializedData);
+        }
 
-                // Deserialize the JSON into the HashMaps
-                planetOrbitalWeapons = new HashMap<>();
-                sectorOrbitalWeapons = new HashMap<>();
-                for (JsonValue typeValue : jsonData) {
-                    String type = typeValue.name;
-                    if (type.equals("planets")) {
-                        Log.info("Loading planet orbital data...");
-                        for (JsonValue planetValue : typeValue) {
-                            String planetName = planetValue.name;
-                            LinkedList<String> orbitalWeapons = new LinkedList<>();
-                            for (JsonValue itemValue : planetValue) {
-                                String itemId = itemValue.toString();
-                                orbitalWeapons.add(itemId);
-                            }
-                            planetOrbitalWeapons.put(planetName, orbitalWeapons);
-                        }
-                    } else if (type.equals("sectors")) {
-                        Log.info("Loading sector orbital data...");
-                        for (JsonValue sectorValue : typeValue) {
-                            String sectorId = sectorValue.name;
-                            LinkedList<String> orbitalWeapons = new LinkedList<>();
-                            for (JsonValue itemValue : sectorValue) {
-                                String itemId = itemValue.toString();
-                                orbitalWeapons.add(itemId);
-                            }
-                            sectorOrbitalWeapons.put(sectorId, orbitalWeapons);
-                        }
-                    } else {
-                        Log.err("Unknown type " + type + " in orbital data.");
-                    }
-                }
+        // Correct data if needed, initializes empty data if needed
+        correctOrbitalData();
 
-                Log.info("orbital data loaded successfully.");
-                correctOrbitalData();
-            } else {
-                Log.info("No orbital data found. Initialising empty.");
-                correctOrbitalData();
+        Log.info("Orbital data was loaded: ");
+        Log.info("Planet orbital data: " + planetOrbitalWeapons);
+        Log.info("Sector orbital data: " + sectorOrbitalWeapons);
+    }
+
+    /**
+     * Returns a JSON string representation of the current orbital data.
+     * <p>
+     * The JSON string is formatted as follows:
+     * <pre>
+     * {
+     *   "planets": {
+     *     "planet1": ["item1", "item2", ...],
+     *     "planet2": ["item3", "item4", ...],
+     *     ...
+     *   },
+     *   "sectors": {
+     *     "sector1": ["item1", "item2", ...],
+     *     "sector2": ["item3", "item4", ...],
+     *     ...
+     *   }
+     * }
+     * </pre>
+     * <p>
+     * The order of the planets and sectors is not guaranteed to be the same as the order in which they were added.
+     * <p>
+     * The order of the items within a given planet or sector is not guaranteed to be the same as the order in which they were added.
+     * <p>
+     * The JSON string is not formatted with newlines or indentation.
+     *
+     * @return the JSON string representation of the current orbital data
+     */
+    public static String serializedOrbitalData() {
+        // Create a StringBuilder to construct the JSON string
+        StringBuilder jsonBuilder = new StringBuilder("{");
+
+        jsonBuilder.append("\"planets\":{");
+        // Iterate over each planet and its associated items
+        for (Map.Entry<String, LinkedList<String>> entry : planetOrbitalWeapons.entrySet()) {
+            String planetName = entry.getKey();
+            LinkedList<String> items = entry.getValue();
+
+            // Append the planet ID and its items to the JSON string
+            jsonBuilder.append("\"").append(planetName).append("\":[");
+            for (String item : items) {
+                jsonBuilder.append("\"").append(item).append("\",");
             }
-        } catch (Exception e) {
-            Log.err("Failed to load orbital data, initialising empty.", e);
-            correctOrbitalData();
+            // Remove the trailing comma and close the planet's JSON object
+            if (!items.isEmpty()) {
+                jsonBuilder.setLength(jsonBuilder.length() - 1);
+            }
+            jsonBuilder.append("],");
+        }
+        // Remove the trailing comma and close the main JSON object
+        if (!planetOrbitalWeapons.isEmpty()) {
+            jsonBuilder.setLength(jsonBuilder.length() - 1);
+        }
+        jsonBuilder.append("}");
+
+        jsonBuilder.append(",\"sectors\":{");
+        // Iterate over each sector and its associated items
+        for (Map.Entry<String, LinkedList<String>> entry : sectorOrbitalWeapons.entrySet()) {
+            String sectorId = entry.getKey();
+            LinkedList<String> items = entry.getValue();
+
+            // Append the sector ID and its items to the JSON string
+            jsonBuilder.append("\"").append(sectorId).append("\":[");
+            for (String item : items) {
+                jsonBuilder.append("\"").append(item).append("\",");
+            }
+            if (!items.isEmpty()) {
+                jsonBuilder.setLength(jsonBuilder.length() - 1);
+            }
+            jsonBuilder.append("],");
+        }
+        // Remove the trailing comma and close the main JSON object
+        if (!sectorOrbitalWeapons.isEmpty()) {
+            jsonBuilder.setLength(jsonBuilder.length() - 1);
+        }
+        jsonBuilder.append("}");
+
+        jsonBuilder.append("}");
+
+        // Return the constructed JSON string
+        return jsonBuilder.toString();
+    }
+
+    /**
+     * Deserializes a given JSON string into the orbital data HashMaps.
+     * <p>
+     * This method expects the given JSON string to have the same structure as the one generated by
+     * {@link #serializedOrbitalData()}, with the main JSON object containing two sub-objects, "planets" and "sectors".
+     * These sub-objects should contain a mapping of planet names and sector IDs to a list of item IDs.
+     * <p>
+     * This method will not modify any existing data in the HashMaps; instead, it will clear the existing data and
+     * load the new data from the given JSON string.
+     *
+     * @param data the JSON string to deserialize
+     */
+    public static void deserializeOrbitalData(String data) {
+        // Create a JSON deserializer
+        Json json = new Json();
+        json.setTypeName(null); // Match what we saved
+
+        JsonValue jsonData = json.fromJson(null, data);
+
+        // Deserialize the JSON into the HashMaps
+        planetOrbitalWeapons = new HashMap<>();
+        sectorOrbitalWeapons = new HashMap<>();
+        for (JsonValue typeValue : jsonData) {
+            String type = typeValue.name;
+            if (type.equals("planets")) {
+                Log.info("Loading planet orbital data...");
+                for (JsonValue planetValue : typeValue) {
+                    String planetName = planetValue.name;
+                    LinkedList<String> orbitalWeapons = new LinkedList<>();
+                    for (JsonValue itemValue : planetValue) {
+                        String itemId = itemValue.toString();
+                        orbitalWeapons.add(itemId);
+                    }
+                    planetOrbitalWeapons.put(planetName, orbitalWeapons);
+                }
+            } else if (type.equals("sectors")) {
+                Log.info("Loading sector orbital data...");
+                for (JsonValue sectorValue : typeValue) {
+                    String sectorId = sectorValue.name;
+                    LinkedList<String> orbitalWeapons = new LinkedList<>();
+                    for (JsonValue itemValue : sectorValue) {
+                        String itemId = itemValue.toString();
+                        orbitalWeapons.add(itemId);
+                    }
+                    sectorOrbitalWeapons.put(sectorId, orbitalWeapons);
+                }
+            } else {
+                Log.err("Unknown type " + type + " in orbital data.");
+            }
         }
     }
 }

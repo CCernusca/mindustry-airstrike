@@ -5,14 +5,10 @@ import mindustry.Vars;
 import mindustry.type.Planet;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-public class AirstrilkeUtils {
+public class AirstrikeUtils {
 
     /**
      * Gets all currently active sectors via their save files.
@@ -114,31 +110,6 @@ public class AirstrilkeUtils {
             }
         }
         return null;
-    }
-
-    /**
-     * Ensures that the data directory for orbital data exists.
-     * <p>
-     * This method checks if the parent directory of the data file path exists.
-     * If it does not exist, it creates the directory along with any necessary
-     * parent directories. Logs an informative message about the directory's
-     * creation or existence. In case of an IOException, it logs an error message.
-     */
-    public static void ensureDataDirectoryExists() {
-        try {
-            // Retrieve the parent directory of the data file
-            Path parentDir = Paths.get(Vars.dataDirectory.child(OrbitalData.dataFilePath).parent().absolutePath());
-            if (parentDir != null && Files.notExists(parentDir)) {
-                // Create the directory, including any necessary but nonexistent parent directories
-                Files.createDirectories(parentDir);
-                Log.info("Data directory created at: @", parentDir.toAbsolutePath());
-            } else {
-                Log.info("Data directory found at: @", parentDir.toAbsolutePath());
-            }
-        } catch (IOException e) {
-            // Log the exception using Log.info
-            Log.info("Failed to create data directory: @", e.getMessage());
-        }
     }
 
     /**

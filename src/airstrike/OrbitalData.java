@@ -441,8 +441,8 @@ public class OrbitalData {
     public static void loadOrbitalData() {
         Log.info("Loading orbital data");
 
-        // Load orbital data from settings
-        String serializedData = Core.settings.getString("airstrike-orbital-data", "");
+        // Load orbital data from settings (default needs to be '{}', so the json reader doesn't crash)
+        String serializedData = Core.settings.getString("airstrike-orbital-data", "{}");
 
         // Check if orbital data exists
         if (serializedData != null) {

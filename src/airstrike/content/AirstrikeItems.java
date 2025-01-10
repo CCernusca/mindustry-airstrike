@@ -26,16 +26,19 @@ public class AirstrikeItems {
         smallSatellite = new SatelliteItem("small-satellite") {{
             alwaysUnlocked = true;
             volume = 5f;
+            color = AirstrikePal.satelliteGrey;
         }};
 
         mediumSatellite = new SatelliteItem("medium-satellite") {{
             alwaysUnlocked = true;
             volume = 10f;
+            color = AirstrikePal.satelliteGrey;
         }};
 
         largeSatellite = new SatelliteItem("large-satellite") {{
             alwaysUnlocked = true;
             volume = 20f;
+            color = AirstrikePal.satelliteGrey;
         }};
 
         nuke = new AirstrikeWeapon("nuke") {
@@ -64,7 +67,7 @@ public class AirstrikeItems {
             }
         };
         nuke.volume = 10f;
-        nuke.color = Color.valueOf("#2f2f2a");
+        nuke.color = AirstrikePal.nukeGrey;
         nuke.alwaysUnlocked = true;
         nuke.explosiveness = 5f;
         nuke.radioactivity = 0.5f;
@@ -95,7 +98,7 @@ public class AirstrikeItems {
             }
         };
         precisionBomb.volume = 1.5f;
-        nuke.color = Color.valueOf("#2e2e2e");
+        nuke.color = AirstrikePal.precisionBombGrey;
         precisionBomb.alwaysUnlocked = true;
         precisionBomb.explosiveness = 0.5f;
 

@@ -3,6 +3,7 @@ package airstrike.blocks;
 import airstrike.OrbitalData;
 import airstrike.items.AirstrikeWeapon;
 import airstrike.content.AirstrikeItems;
+import airstrike.meta.AirstrikeStat;
 import arc.graphics.Color;
 import arc.scene.event.Touchable;
 import arc.scene.ui.Button;
@@ -15,6 +16,7 @@ import arc.util.Log;
 import mindustry.gen.Building;
 import mindustry.ui.Styles;
 import mindustry.world.Block;
+import mindustry.world.meta.StatUnit;
 
 import java.util.LinkedList;
 
@@ -32,6 +34,12 @@ public class Beacon extends Block {
         buildType = BeaconBuild::new;
         weapons = new LinkedList<>();
         selected = 0;
+    }
+
+    @Override
+    public void setStats() {
+        super.setStats();
+        stats.add(AirstrikeStat.impactDelay, impactDelay, StatUnit.seconds);
     }
 
     public class BeaconBuild extends Building {

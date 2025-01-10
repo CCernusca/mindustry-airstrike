@@ -3,13 +3,9 @@ package airstrike.content;
 import airstrike.AirstrikeUtils;
 import airstrike.items.AirstrikeWeapon;
 import airstrike.items.SatelliteItem;
-import arc.graphics.Color;
-import arc.math.Mathf;
-import arc.util.Log;
+import airstrike.meta.AirstrikeStat;
 import mindustry.Vars;
-import mindustry.entities.Damage;
 import mindustry.entities.Effect;
-import mindustry.entities.Units;
 import mindustry.world.Tile;
 
 import java.lang.reflect.Field;
@@ -42,14 +38,15 @@ public class AirstrikeItems {
         }};
 
         nuke = new AirstrikeWeapon("nuke") {
+            // Radius in tiles
+            final float explosionRadius = 40f;
+            final float explosionDamage = 10000f;
+            final float knockbackStrength = 100f;
+            final float shakeIntensity = 500f;
+            final float shakeDuration = 50f;
+
             @Override
             public void onImpact(Tile impactTile) {
-                // Radius in tiles
-                float explosionRadius = 40f;
-                float explosionDamage = 10000f;
-                float knockbackStrength = 100f;
-                float shakeIntensity = 500f;
-                float shakeDuration = 50f;
 
                 // Get tile position
                 int tilex = impactTile.x;
@@ -65,6 +62,14 @@ public class AirstrikeItems {
 
                 AirstrikeUtils.explosion(impactTile, explosionRadius, explosionDamage, knockbackStrength, shakeIntensity, shakeDuration);
             }
+
+            @Override
+            public void setStats() {
+                super.setStats();
+                stats.add(AirstrikeStat.explosionRadius, explosionRadius);
+                stats.add(AirstrikeStat.explosionDamage, explosionDamage);
+                stats.add(AirstrikeStat.knockbackStrength, knockbackStrength);
+            }
         };
         nuke.volume = 10f;
         nuke.color = AirstrikePal.nukeGrey;
@@ -73,14 +78,15 @@ public class AirstrikeItems {
         nuke.radioactivity = 0.5f;
 
         precisionBomb = new AirstrikeWeapon("precision-bomb") {
+            // Radius in tiles
+            final float explosionRadius = 2f;
+            final float explosionDamage = 1000f;
+            final float knockbackStrength = 1f;
+            final float shakeIntensity = 5f;
+            final float shakeDuration = 10f;
+
             @Override
             public void onImpact(Tile impactTile) {
-                // Radius in tiles
-                float explosionRadius = 2f;
-                float explosionDamage = 1000f;
-                float knockbackStrength = 1f;
-                float shakeIntensity = 5f;
-                float shakeDuration = 10f;
 
                 // Get tile position
                 int tilex = impactTile.x;
@@ -95,6 +101,14 @@ public class AirstrikeItems {
                 AirstrikeFx.nukeExplosion(explosionRadius, explosionRadius * Vars.tilesize).at(worldx, worldy);
 
                 AirstrikeUtils.explosion(impactTile, explosionRadius, explosionDamage, knockbackStrength, shakeIntensity, shakeDuration);
+            }
+
+            @Override
+            public void setStats() {
+                super.setStats();
+                stats.add(AirstrikeStat.explosionRadius, explosionRadius);
+                stats.add(AirstrikeStat.explosionDamage, explosionDamage);
+                stats.add(AirstrikeStat.knockbackStrength, knockbackStrength);
             }
         };
         precisionBomb.volume = 1.5f;

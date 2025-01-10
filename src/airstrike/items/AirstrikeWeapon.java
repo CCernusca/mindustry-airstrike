@@ -1,5 +1,6 @@
 package airstrike.items;
 
+import airstrike.meta.AirstrikeStat;
 import arc.util.Timer;
 import mindustry.type.Item;
 import mindustry.world.Tile;
@@ -22,6 +23,12 @@ public abstract class AirstrikeWeapon extends Item {
                 this.onImpact(impactTile);
             }
         }, impactDelay);
+    }
+
+    @Override
+    public void setStats() {
+        super.setStats();
+        stats.add(AirstrikeStat.volume, volume);
     }
 
 }

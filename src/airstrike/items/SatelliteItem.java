@@ -1,6 +1,6 @@
 package airstrike.items;
 
-import arc.graphics.Color;
+import airstrike.meta.AirstrikeStat;
 import mindustry.type.Item;
 
 public class SatelliteItem extends Item {
@@ -15,4 +15,9 @@ public class SatelliteItem extends Item {
         this.charge = 0f;
     }
 
+    @Override
+    public void setStats() {
+        super.setStats();
+        stats.add(AirstrikeStat.volume, volume);
+    }
 }

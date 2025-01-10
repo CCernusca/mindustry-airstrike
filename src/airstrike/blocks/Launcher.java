@@ -1,6 +1,7 @@
 package airstrike.blocks;
 
 import airstrike.OrbitalData;
+import airstrike.content.AirstrikePal;
 import airstrike.items.AirstrikeWeapon;
 import airstrike.items.SatelliteItem;
 import arc.*;
@@ -21,6 +22,7 @@ import mindustry.ui.*;
 import mindustry.world.blocks.campaign.LaunchPad;
 import mindustry.Vars;
 
+import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatUnit;
 import mindustry.world.modules.ItemModule;
 
@@ -44,13 +46,13 @@ public class Launcher extends LaunchPad {
         removeBar("items");
 
         addBar("satellite", entity -> new Bar(
-                () -> (((LauncherBuild) entity).satellite == null ? "No Satellite" : ((LauncherBuild) entity).satellite.localizedName),
-                () -> Pal.items,
+                () -> (((LauncherBuild) entity).satellite == null ? Core.bundle.get("bar.no-satellite") : Core.bundle.format("bar.satellite",((LauncherBuild) entity).satellite.localizedName)),
+                () -> AirstrikePal.satelliteGrey,
                 () -> (float) (((LauncherBuild) entity).satellite == null ? 0 : 1)
         ));
 
         addBar("weapons", entity -> new Bar(
-                () -> "Weapons: " + ((LauncherBuild) entity).weapons.size(),
+                () -> Core.bundle.format("bar.weapons", ((LauncherBuild) entity).weapons.size()),
                 () -> Pal.items,
                 () -> (float) ((LauncherBuild) entity).weapons.size() > 0 ? 1 : 0
         ));
@@ -62,10 +64,16 @@ public class Launcher extends LaunchPad {
         ));
 
         addBar("volume", entity -> new Bar(
-                () -> "Volume: " + ((LauncherBuild) entity).usedVolume(),
+                () -> Core.bundle.format("bar.volume", ((LauncherBuild) entity).usedVolume()),
                 () -> Pal.items,
                 () -> (((LauncherBuild) entity).satellite != null ? ((LauncherBuild) entity).usedVolume() / ((LauncherBuild) entity).satellite.volume : 0)
         ));
+    }
+
+    @Override
+    public void setStats() {
+        super.setStats();
+        stats.remove(Stat.itemCapacity);
     }
 
     public class LauncherBuild extends LaunchPadBuild {
@@ -101,34 +109,31 @@ public class Launcher extends LaunchPad {
             }
 
             // Increment launchCounter and launch when contents are ready and power is available
-            if ((launchCounter += edelta()) >= launchTime && satellite != null) {
-                // Check if there's enough power to launch
-                if (power.status >= 1f) {
-                    // Add weapons to orbital data
-                    for (AirstrikeWeapon weapon : weapons) {
-                        OrbitalData.addOrbitalWeapon(weapon);
-                    }
-                    // Consume weapons & satellite
-                    weapons.clear();
-                    satellite = null;
-                    // Consume items & power
-                    consume();
-                    launchSound.at(x, y);
-                    Fx.launchPod.at(this);
-                    Effect.shake(3f, 3f, this);
-
-                    items.clear();
-
-                    // TODO: Create custom entity for launches
-                    // (Stop using the LaunchPad entity)
-                    LaunchPayload entity = LaunchPayload.create();
-                    entity.set(this);
-                    entity.lifetime(120f);
-                    entity.team(team);
-                    entity.add();
-
-                    launchCounter = 0f;
+            if ((launchCounter += edelta()) >= launchTime && satellite != null && power.status >= 1f) {
+                // Add weapons to orbital data
+                for (AirstrikeWeapon weapon : weapons) {
+                    OrbitalData.addOrbitalWeapon(weapon);
                 }
+                // Consume weapons & satellite
+                weapons.clear();
+                satellite = null;
+                // Consume items & power
+                consume();
+                launchSound.at(x, y);
+                Fx.launchPod.at(this);
+                Effect.shake(3f, 3f, this);
+
+                items.clear();
+
+                // TODO: Create custom entity for launches
+                // (Stop using the LaunchPad entity)
+                LaunchPayload entity = LaunchPayload.create();
+                entity.set(this);
+                entity.lifetime(120f);
+                entity.team(team);
+                entity.add();
+
+                launchCounter = 0f;
             }
         }
 

@@ -2,7 +2,6 @@ package airstrike;
 
 import airstrike.content.AirstrikeBlocks;
 import airstrike.content.AirstrikeItems;
-import airstrike.content.AirstrikeWeapons;
 import arc.Events;
 import mindustry.mod.*;
 import mindustry.game.EventType;
@@ -26,7 +25,6 @@ public class AirstrikeMod extends Mod {
     public void loadContent() {
         super.loadContent();
         AirstrikeBlocks.load();
-        AirstrikeWeapons.load();  // Weapons must be loaded before Items, as they are used by Items
         AirstrikeItems.load();
 
         // Load orbital data, in case it is needed before a sector is loaded

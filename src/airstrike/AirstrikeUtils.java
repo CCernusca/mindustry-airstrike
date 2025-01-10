@@ -1,8 +1,12 @@
 package airstrike;
 
+import arc.math.Mathf;
 import arc.util.Log;
 import mindustry.Vars;
+import mindustry.entities.Damage;
+import mindustry.entities.Units;
 import mindustry.type.Planet;
+import mindustry.world.Tile;
 
 import java.io.File;
 import java.util.HashMap;
@@ -128,5 +132,59 @@ public class AirstrikeUtils {
         } else {
             return getCurrentSectorId();
         }
+    }
+    
+    /**
+     * Creates an explosion centered at the specified tile, dealing damage to units and buildings and applying knockback to units.
+     * <p>
+     * This method first applies damage to units within the explosion radius.
+     * Then, it applies knockback to units within the explosion radius.
+     * Finally, it applies damage to buildings within the explosion radius.
+     * <p>
+     * The damage and knockback amounts are specified in terms of the tile radius, so the actual damage and knockback amounts applied will be scaled by the tile size.
+     * The shake intensity and duration are used to create a screen shake effect.
+     * <p>
+     * This method is used by the nuke airstrike weapon to create an explosion on impact.
+     * @param tile the tile to center the explosion at
+     * @param radius the radius of the explosion in tiles
+     * @param damage the amount of damage to deal to units
+     * @param knockback the amount of knockback to apply to units
+     * @param shakeIntensity the intensity of the screen shake effect
+     * @param shakeDuration the duration of the screen shake effect
+     */
+    public static void explosion(Tile tile, float radius, float damage, float knockback, float shakeIntensity, float shakeDuration) {
+        // Get tile position
+        int tilex = tile.x;
+        int tiley = tile.y;
+        // Get world position
+        float worldx = tile.worldx();
+        float worldy = tile.worldy();
+
+        // Apply damage to units (works in world space)
+        Damage.damage(null, worldx, worldy, radius * Vars.tilesize, damage, false, true, true, true, null);
+
+        // Apply knockback to units within the explosion radius (works in world space)
+        Units.nearby(null, worldx, worldy, radius * Vars.tilesize, unit -> {
+            if (unit != null && unit.team() != null) {
+                // Calculate direction vector from unit to explosion center
+                float dx = unit.x() - worldx;
+                float dy = unit.y() - worldy;
+                float distance = Mathf.dst(worldx, worldy, unit.x(), unit.y());
+                if (distance < radius * Vars.tilesize) {
+                    // Normalize direction vector
+                    dx /= distance;
+                    dy /= distance;
+                    // Calculate knockback velocity based on distance and control variable
+                    float knockbackVelocity = knockback * (1 - distance / (radius * Vars.tilesize));
+                    // Adjust knockback based on unit size/mass (mass is approximated via hitbox width)
+                    float unitMass = unit.type().hitSize;
+                    knockbackVelocity /= unitMass;
+                    unit.vel().add(dx * knockbackVelocity, dy * knockbackVelocity);
+                }
+            }
+        });
+
+        // Apply damage to buildings (works in tile space)
+        Damage.tileDamage(null, tilex, tiley, radius, damage, null);
     }
 }

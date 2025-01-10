@@ -1,7 +1,7 @@
 package airstrike;
 
-import airstrike.airstrikeweapons.AirstrikeWeapon;
-import airstrike.content.AirstrikeWeapons;
+import airstrike.items.AirstrikeWeapon;
+import airstrike.content.AirstrikeItems;
 import arc.Core;
 import arc.util.Log;
 import arc.util.serialization.Json;
@@ -160,7 +160,7 @@ public class OrbitalData {
             return;
         }
         for (int i = 0; i < amount; i++) {
-            orbitalWeapons.add(weapon.id);
+            orbitalWeapons.add(weapon.name);
         }
     }
 
@@ -180,7 +180,7 @@ public class OrbitalData {
             return;
         }
         for (int i = 0; i < amount; i++) {
-            orbitalWeapons.add(weapon.id);
+            orbitalWeapons.add(weapon.name);
         }
     }
 
@@ -233,7 +233,7 @@ public class OrbitalData {
      */
     public static boolean removeOrbitalWeaponFromPlanet(String planetName, AirstrikeWeapon weapon, int amount) {
         LinkedList<String> orbitalWeapons = getOrbitalWeaponsOfPlanet(planetName);
-        int weaponCount = getCurrentOrbitalWeaponCount(weapon.id);
+        int weaponCount = getCurrentOrbitalWeaponCount(weapon.name);
         if (orbitalWeapons == null) {
             Log.err("Planet " + planetName + " not in orbital data");
             return false;
@@ -242,7 +242,7 @@ public class OrbitalData {
             return false;
         }
         for (int i = 0; i < amount; i++) {
-            orbitalWeapons.remove(weapon.id);
+            orbitalWeapons.remove(weapon.name);
         }
         return true;
     }
@@ -263,7 +263,7 @@ public class OrbitalData {
      */
     public static boolean removeOrbitalWeaponFromSector(String sectorId, AirstrikeWeapon weapon, int amount) {
         LinkedList<String> orbitalWeapons = getOrbitalWeaponsOfSector(sectorId);
-        int weaponCount = getCurrentOrbitalWeaponCount(weapon.id);
+        int weaponCount = getCurrentOrbitalWeaponCount(weapon.name);
         if (orbitalWeapons == null) {
             Log.err("Sector " + sectorId + " not in orbital data");
             return false;
@@ -272,7 +272,7 @@ public class OrbitalData {
             return false;
         }
         for (int i = 0; i < amount; i++) {
-            orbitalWeapons.remove(weapon.id);
+            orbitalWeapons.remove(weapon.name);
         }
         return true;
     }
@@ -390,7 +390,7 @@ public class OrbitalData {
     /**
      * Removes any invalid weapons from the given list of weapons.
      * <p>
-     * A weapon is considered invalid if it is not present in the {@link AirstrikeWeapons} fields.
+     * A weapon is considered invalid if it is not present in the {@link AirstrikeItems} fields.
      * <p>
      * This method is idempotent and does not modify the list if it does not contain any invalid weapons.
      *
@@ -399,7 +399,7 @@ public class OrbitalData {
     public static void correctOrbitalDataWeapons(LinkedList<String> weapons) {
         LinkedList<String> toRemove = new LinkedList<>();
         for (String weaponId : weapons) {
-            if (AirstrikeWeapons.get(weaponId) == null) {
+            if (AirstrikeItems.getWeapon(weaponId) == null) {
                 Log.info("Removing invalid weapon " + weaponId + " from orbital data.");
                 toRemove.add(weaponId);
             }

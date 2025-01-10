@@ -127,13 +127,13 @@ public class Beacon extends Block {
             // Add the ScrollPane to the main table
             table.add(scrollPane).size(200f, 150f).row();
 
-            // Create a Table to hold the "Close" button
+            // Create a Table to hold the "call" button
             Table buttonTable = new Table();
-            // Create the "Close" button
+            // Create the "call" button
             Button closeButton = new TextButton("Call", Styles.defaultt);
             // Deselects the block and closes the configuration UI
             closeButton.clicked(this::call);
-            // Add the "Close" button to the buttonTable
+            // Add the "call" button to the buttonTable
             buttonTable.add(closeButton).size(200f, 50f);
             // Add the buttonTable to the main table below the ScrollPane
             table.add(buttonTable).row();

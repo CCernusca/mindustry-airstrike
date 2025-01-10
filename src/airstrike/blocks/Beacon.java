@@ -1,8 +1,8 @@
 package airstrike.blocks;
 
 import airstrike.OrbitalData;
-import airstrike.airstrikeweapons.AirstrikeWeapon;
-import airstrike.content.AirstrikeWeapons;
+import airstrike.items.AirstrikeWeapon;
+import airstrike.content.AirstrikeItems;
 import arc.graphics.Color;
 import arc.scene.event.Touchable;
 import arc.scene.ui.Button;
@@ -59,8 +59,8 @@ public class Beacon extends Block {
             // Update the weapons list
             LinkedList<String> orbitalWeapons = OrbitalData.getOrbitalWeapons();
             weapons.clear();
-            for (String weaponId : orbitalWeapons) {
-                AirstrikeWeapon weapon = AirstrikeWeapons.get(weaponId);
+            for (String weaponName : orbitalWeapons) {
+                AirstrikeWeapon weapon = AirstrikeItems.getWeapon(weaponName);
                 if (weapon == null) {
                     Log.err("Invalid weapon");
                     continue;
@@ -91,7 +91,7 @@ public class Beacon extends Block {
             // Iterate through the weapons and add them to the weaponsTable
             int index = 0;
             for (AirstrikeWeapon weapon : weapons) {
-                Label weaponLabel = new Label(weapon.name, Styles.defaultLabel);
+                Label weaponLabel = new Label(weapon.localizedName, Styles.defaultLabel);
                 weaponLabel.touchable = Touchable.enabled; // Make the label touchable
 
                 // Add a click listener to handle selection

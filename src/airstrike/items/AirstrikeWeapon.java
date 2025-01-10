@@ -1,17 +1,16 @@
-package airstrike.airstrikeweapons;
+package airstrike.items;
 
 import arc.util.Timer;
+import mindustry.type.Item;
 import mindustry.world.Tile;
 
-public abstract class AirstrikeWeapon {
-    public String id;
-    public String name;
+public abstract class AirstrikeWeapon extends Item {
+    public float volume;
     // Method for weapons to implement defining what happens on impact
     public abstract void onImpact(Tile impactTile);
 
-    public AirstrikeWeapon(String id, String name) {
-        this.id = id;
-        this.name = name;
+    public AirstrikeWeapon(String name) {
+        super(name);
     }
 
     // Calls onImpact at impactTile after impactDelay

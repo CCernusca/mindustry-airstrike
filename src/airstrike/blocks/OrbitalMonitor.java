@@ -1,8 +1,8 @@
 package airstrike.blocks;
 
 import airstrike.OrbitalData;
-import airstrike.airstrikeweapons.AirstrikeWeapon;
-import airstrike.content.AirstrikeWeapons;
+import airstrike.items.AirstrikeWeapon;
+import airstrike.content.AirstrikeItems;
 import arc.scene.ui.Button;
 import arc.scene.ui.Label;
 import arc.scene.ui.ScrollPane;
@@ -45,14 +45,13 @@ public class OrbitalMonitor extends Block {
             // Retrieve the available airstrike weapons
             LinkedList<String> weapons = OrbitalData.getOrbitalWeapons();
             // Iterate through the weapons and add them to the weaponsTable
-            for (String weaponId : weapons) {
-                AirstrikeWeapon weapon = AirstrikeWeapons.get(weaponId);
+            for (String weaponName : weapons) {
+                AirstrikeWeapon weapon = AirstrikeItems.getWeapon(weaponName);
                 if (weapon == null) {
                     Log.err("Invalid weapon");
                     continue;
                 }
-                String weaponName = weapon.name;
-                Label label = new Label(weaponName, Styles.defaultLabel);
+                Label label = new Label(weapon.localizedName, Styles.defaultLabel);
                 label.setAlignment(Align.center, Align.center);
                 weaponsTable.add(label).pad(10).row();
             }

@@ -20,10 +20,9 @@ public class AirstrikeBlocks {
         launcher = new Launcher("launcher") {{
             requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 1));
             size = 5;
-            itemCapacity = 1;
             launchTime = 60f * 20;
             hasPower = true;
-            consumePower(1f);
+            consumePower(100f);
             alwaysUnlocked = true;
             launchSound = Sounds.missileLaunch;
         }};

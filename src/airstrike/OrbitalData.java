@@ -336,13 +336,13 @@ public class OrbitalData {
         for (Planet planet : saves.keySet()) {
             if (planet != null) {
                 if (!planetOrbitalWeapons.containsKey(String.valueOf(planet.name))) {
-                    Log.info("Adding untracked Planet " + planet.name + " to orbital data.");
+//                    Log.info("Adding untracked Planet " + planet.name + " to orbital data.");
                     planetOrbitalWeapons.put(String.valueOf(planet.name), new LinkedList<String>());
                 }
             } else {
                 for (int sectorId : saves.get(null)) {
                     if (!sectorOrbitalWeapons.containsKey(String.valueOf(sectorId))) {
-                        Log.info("Adding untracked non-planet Sector " + sectorId + " to orbital data.");
+//                        Log.info("Adding untracked non-planet Sector " + sectorId + " to orbital data.");
                         sectorOrbitalWeapons.put(String.valueOf(sectorId), new LinkedList<String>());
                     }
                 }
@@ -352,7 +352,7 @@ public class OrbitalData {
         LinkedList<String> toRemove = new LinkedList<>();
         for (String planetName : planetOrbitalWeapons.keySet()) {
             if (AirstrikeUtils.getPlanetByName(planetName) == null || !saves.containsKey(AirstrikeUtils.getPlanetByName(planetName))) {
-                Log.info("Removing invalid Planet " + planetName + " from orbital data.");
+//                Log.info("Removing invalid Planet " + planetName + " from orbital data.");
                 toRemove.add(planetName);
             }
             LinkedList<String> orbitalWeapons = getOrbitalWeaponsOfPlanet(planetName);
@@ -368,7 +368,7 @@ public class OrbitalData {
         if (saves.containsKey(null)) {
             for (String sectorId : sectorOrbitalWeapons.keySet()) {
                 if (!saves.get(null).contains(Integer.parseInt(sectorId))) {
-                    Log.info("Removing invalid non-planet sector " + sectorId + " from orbital data.");
+//                    Log.info("Removing invalid non-planet sector " + sectorId + " from orbital data.");
                     toRemove.add(sectorId);
                 }
                 LinkedList<String> orbitalWeapons = getOrbitalWeaponsOfSector(sectorId);
@@ -378,7 +378,7 @@ public class OrbitalData {
             }
         } else {
             for (String sectorId : sectorOrbitalWeapons.keySet()) {
-                Log.info("Removing invalid non-planet sector " + sectorId + " from orbital data.");
+//                Log.info("Removing invalid non-planet sector " + sectorId + " from orbital data.");
                 toRemove.add(sectorId);
             }
         }
@@ -400,7 +400,7 @@ public class OrbitalData {
         LinkedList<String> toRemove = new LinkedList<>();
         for (String weaponId : weapons) {
             if (AirstrikeItems.getWeapon(weaponId) == null) {
-                Log.info("Removing invalid weapon " + weaponId + " from orbital data.");
+//                Log.info("Removing invalid weapon " + weaponId + " from orbital data.");
                 toRemove.add(weaponId);
             }
         }
@@ -418,7 +418,7 @@ public class OrbitalData {
      * This method is called automatically by the mod whenever the game saves.
      */
     public static void saveOrbitalData() {
-        Log.info("Saving orbital data");
+//        Log.info("Saving orbital data");
 
         // Correct the data before saving
         correctOrbitalData();
@@ -427,7 +427,7 @@ public class OrbitalData {
         Core.settings.put("airstrike-orbital-data", serializedOrbitalData());
         Core.settings.saveValues();
 
-        Log.info("Orbital data was saved: " + Core.settings.getString("airstrike-orbital-data", ""));
+//        Log.info("Orbital data was saved: " + Core.settings.getString("airstrike-orbital-data", ""));
     }
 
     /**
@@ -439,7 +439,7 @@ public class OrbitalData {
      * This method is called automatically by the mod whenever the game loads.
      */
     public static void loadOrbitalData() {
-        Log.info("Loading orbital data");
+//        Log.info("Loading orbital data");
 
         // Load orbital data from settings (default needs to be '{}', so the json reader doesn't crash)
         String serializedData = Core.settings.getString("airstrike-orbital-data", "{}");
@@ -453,9 +453,9 @@ public class OrbitalData {
         // Correct data if needed, initializes empty data if needed
         correctOrbitalData();
 
-        Log.info("Orbital data was loaded: ");
-        Log.info("Planet orbital data: " + planetOrbitalWeapons);
-        Log.info("Sector orbital data: " + sectorOrbitalWeapons);
+//        Log.info("Orbital data was loaded: ");
+//        Log.info("Planet orbital data: " + planetOrbitalWeapons);
+//        Log.info("Sector orbital data: " + sectorOrbitalWeapons);
     }
 
     /**
@@ -565,7 +565,7 @@ public class OrbitalData {
         for (JsonValue typeValue : jsonData) {
             String type = typeValue.name;
             if (type.equals("planets")) {
-                Log.info("Loading planet orbital data...");
+//                Log.info("Loading planet orbital data...");
                 for (JsonValue planetValue : typeValue) {
                     String planetName = planetValue.name;
                     LinkedList<String> orbitalWeapons = new LinkedList<>();
@@ -576,7 +576,7 @@ public class OrbitalData {
                     planetOrbitalWeapons.put(planetName, orbitalWeapons);
                 }
             } else if (type.equals("sectors")) {
-                Log.info("Loading sector orbital data...");
+//                Log.info("Loading sector orbital data...");
                 for (JsonValue sectorValue : typeValue) {
                     String sectorId = sectorValue.name;
                     LinkedList<String> orbitalWeapons = new LinkedList<>();

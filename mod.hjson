@@ -1,25 +1,28 @@
 {
-  #the mod name as displayed in-game
   displayName: "Mindustry Airstrike"
 
-  #the internal name of your mod
   name: "airstrike-mod"
 
-  #your name
   author: "Cra-C-Guy"
 
-  #the fully qualified main class of the mod
   main: "airstrike.AirstrikeMod"
 
-  #the mod description as seen in the mod dialog
-  description: "A Mindustry mod adding airstrikes."
+  description:
+  '''
+  A Mindustry mod adding airstrikes.
 
-  #the mod version
-  version: 0.0
+  The core mechanic of the mod are the Orbital Weapons, which are launched into orbit using satellites and the Launcher block.
 
-  #the minimum game build required to run this mod
-  minGameVersion: 145
+  Weapons in orbit are saved across game sessions and can be accessed from any sector on the planet they were launched from, or only from the sector they were launched from, if the sector is not on a planet (not in campaign).
 
-  #this is a java mod
+  Orbital Weapons are monitored via the Orbital Monitor and can be called to strike using the Beacon and the Orbital Controller.
+  '''
+
+  version: "1.0.0"
+
+  minGameVersion: 146
+
   java: true
+
+  "subtitle": "A Mindustry mod adding airstrikes."
 }

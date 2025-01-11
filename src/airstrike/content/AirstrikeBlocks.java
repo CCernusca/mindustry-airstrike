@@ -30,7 +30,7 @@ public class AirstrikeBlocks {
         // TODO: Balancing
 
         launcher = new Launcher("launcher") {{
-            requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 1));
+            requirements(Category.effect, BuildVisibility.shown, with(Items.silicon, 100, Items.titanium, 50, Items.copper, 70, Items.lead, 30));
             size = 5;
             launchTime = 60f * 20;
             hasPower = true;
@@ -41,14 +41,14 @@ public class AirstrikeBlocks {
         }};
 
         orbitalMonitor = new OrbitalMonitor("orbital-monitor") {{
-            requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 1));
+            requirements(Category.effect, BuildVisibility.shown, with(Items.silicon, 30, Items.titanium, 10, Items.copper, 20, Items.lead, 10, Items.metaglass, 20));
             size = 2;
 
             alwaysUnlocked = true;
         }};
 
         beacon = new Beacon("beacon") {{
-            requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 1));
+            requirements(Category.effect, BuildVisibility.shown, with(Items.silicon, 10, Items.copper, 20, Items.lead, 5, Items.surgeAlloy, 1));
             size = 1;
 
             impactDelay = 1f;
@@ -56,7 +56,7 @@ public class AirstrikeBlocks {
         }};
 
         orbitalController = new OrbitalController("orbital-controller") {{
-            requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 1));
+            requirements(Category.effect, BuildVisibility.shown, with(Items.silicon, 50, Items.titanium, 30, Items.surgeAlloy, 5, Items.copper, 30, Items.lead, 10, Items.metaglass, 10));
             size = 2;
             impactDelay = 1f;
 
@@ -64,7 +64,7 @@ public class AirstrikeBlocks {
         }};
 
         smallSatelliteAssembler = new GenericCrafter("small-satellite-assembler") {{
-            requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 1));
+            requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 20, Items.lead, 10, Items.silicon, 30, Items.titanium, 10));
             size = 2;
             ambientSound = Sounds.machine;
             ambientSoundVolume = 0.1f;
@@ -79,7 +79,7 @@ public class AirstrikeBlocks {
         }};
 
         mediumSatelliteAssembler = new GenericCrafter("medium-satellite-assembler") {{
-            requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 1));
+            requirements(Category.effect, BuildVisibility.shown, with(Items.titanium, 50, Items.plastanium, 10, Items.silicon, 50, Items.copper, 5));
             size = 2;
             ambientSound = Sounds.machine;
             ambientSoundVolume = 0.1f;
@@ -95,7 +95,7 @@ public class AirstrikeBlocks {
 
 
         largeSatelliteAssembler = new GenericCrafter("large-satellite-assembler") {{
-            requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 1));
+            requirements(Category.effect, BuildVisibility.shown, with(Items.titanium, 100, Items.plastanium, 50, Items.surgeAlloy, 10, Items.silicon, 50, Items.copper, 30));
             size = 2;
             ambientSound = Sounds.machine;
             ambientSoundVolume = 0.1f;
@@ -111,7 +111,7 @@ public class AirstrikeBlocks {
         }};
 
         nukeAssembler = new GenericCrafter("nuke-assembler") {{
-            requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 1));
+            requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 25, Items.lead, 20, Items.silicon, 50, Items.titanium, 30));
             size = 1;
             ambientSound = Sounds.machine;
             ambientSoundVolume = 0.1f;
@@ -127,7 +127,7 @@ public class AirstrikeBlocks {
         }};
 
         precisionBombAssembler = new GenericCrafter("precision-bomb-assembler") {{
-            requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 1));
+            requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 25, Items.lead, 20, Items.silicon, 30, Items.titanium, 20));
             size = 1;
             ambientSound = Sounds.machine;
             ambientSoundVolume = 0.1f;

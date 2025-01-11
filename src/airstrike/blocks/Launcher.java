@@ -64,7 +64,7 @@ public class Launcher extends LaunchPad {
         ));
 
         addBar("volume", entity -> new Bar(
-                () -> Core.bundle.format("bar.volume", ((LauncherBuild) entity).usedVolume()),
+                () -> ((LauncherBuild) entity).satellite != null ? Core.bundle.format("bar.volume", ((LauncherBuild) entity).usedVolume()) : Core.bundle.get("bar.no-volume"),
                 () -> Pal.items,
                 () -> (((LauncherBuild) entity).satellite != null ? ((LauncherBuild) entity).usedVolume() / ((LauncherBuild) entity).satellite.volume : 0)
         ));

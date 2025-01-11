@@ -24,8 +24,8 @@ public class AirstrikeMod extends Mod {
     @Override
     public void loadContent() {
         super.loadContent();
+        AirstrikeItems.load();  // Items need to be loaded before blocks, as they need them
         AirstrikeBlocks.load();
-        AirstrikeItems.load();
 
         // Load orbital data, in case it is needed before a sector is loaded
         OrbitalData.loadOrbitalData();

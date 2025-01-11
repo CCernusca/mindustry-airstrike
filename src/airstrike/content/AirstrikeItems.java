@@ -35,6 +35,7 @@ public class AirstrikeItems {
             alwaysUnlocked = true;
             volume = 20f;
             color = AirstrikePal.satelliteGrey;
+            radioactivity = 0.1f;
         }};
 
         nuke = new AirstrikeWeapon("nuke") {

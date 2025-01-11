@@ -55,8 +55,6 @@ public class Beacon extends Block {
                     // Should be impossible, only weapons in orbit are displayed
                     Log.err("Selected weapon not in orbit");
                 }
-            } else {
-                Log.err("Invalid selection");
             }
         }
 

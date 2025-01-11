@@ -2,11 +2,8 @@ package airstrike.blocks;
 
 import airstrike.OrbitalData;
 import airstrike.items.AirstrikeWeapon;
-import arc.graphics.Color;
-import arc.scene.event.Touchable;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.Table;
-import arc.util.Align;
 import arc.util.Log;
 import mindustry.Vars;
 import mindustry.game.Team;

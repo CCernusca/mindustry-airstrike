@@ -2,6 +2,7 @@ package airstrike.content;
 
 import airstrike.blocks.Beacon;
 import airstrike.blocks.Launcher;
+import airstrike.blocks.OrbitalController;
 import airstrike.blocks.OrbitalMonitor;
 import mindustry.content.Items;
 import mindustry.gen.Sounds;
@@ -15,6 +16,7 @@ public class AirstrikeBlocks {
     public static Block launcher;
     public static Block orbitalMonitor;
     public static Block beacon;
+    public static Block orbitalController;
 
     public static void load() {
         launcher = new Launcher("launcher") {{
@@ -36,6 +38,13 @@ public class AirstrikeBlocks {
         beacon = new Beacon("beacon") {{
             requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 1));
             size = 1;
+            alwaysUnlocked = true;
+            impactDelay = 1f;
+        }};
+
+        orbitalController = new OrbitalController("orbital-controller") {{
+            requirements(Category.effect, BuildVisibility.shown, with(Items.copper, 1));
+            size = 2;
             alwaysUnlocked = true;
             impactDelay = 1f;
         }};

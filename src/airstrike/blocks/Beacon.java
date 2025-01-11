@@ -4,6 +4,7 @@ import airstrike.OrbitalData;
 import airstrike.items.AirstrikeWeapon;
 import airstrike.content.AirstrikeItems;
 import airstrike.meta.AirstrikeStat;
+import arc.Core;
 import arc.graphics.Color;
 import arc.scene.event.Touchable;
 import arc.scene.ui.Button;
@@ -80,7 +81,7 @@ public class Beacon extends Block {
             // Create a Label & Background for the title
             Table titleBackground = new Table();
             titleBackground.background(Styles.black6);
-            Label titleLabel = new Label("Select Weapon", Styles.defaultLabel);
+            Label titleLabel = new Label(Core.bundle.get("label.select-weapon"), Styles.defaultLabel);
             titleBackground.add(titleLabel);
             table.add(titleBackground).size(200f, 50f).row();
 
@@ -97,7 +98,7 @@ public class Beacon extends Block {
             // Iterate through the weapons and add them to the weaponsTable
             int index = 0;
             for (AirstrikeWeapon weapon : weapons) {
-                Label weaponLabel = new Label(weapon.localizedName, Styles.defaultLabel);
+                Label weaponLabel = new Label(Core.bundle.format("label.weapon-name", weapon.localizedName), Styles.defaultLabel);
                 weaponLabel.touchable = Touchable.enabled; // Make the label touchable
 
                 // Add a click listener to handle selection
@@ -128,7 +129,7 @@ public class Beacon extends Block {
             // Create a Table to hold the "call" button
             Table buttonTable = new Table();
             // Create the "call" button
-            Button closeButton = new TextButton("Call", Styles.defaultt);
+            Button closeButton = new TextButton(Core.bundle.get("button.call-strike"), Styles.defaultt);
             // Deselects the block and closes the configuration UI
             closeButton.clicked(this::call);
             // Add the "call" button to the buttonTable

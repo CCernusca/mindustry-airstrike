@@ -2,6 +2,7 @@ package airstrike.blocks;
 
 import airstrike.OrbitalData;
 import airstrike.items.AirstrikeWeapon;
+import arc.Core;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.Table;
 import arc.util.Log;
@@ -40,8 +41,6 @@ public class OrbitalController extends Beacon {
                     // Should be impossible, only weapons in orbit are displayed
                     Log.err("Selected weapon not in orbit");
                 }
-            } else {
-                Log.err("Invalid selection");
             }
         }
 
@@ -56,8 +55,8 @@ public class OrbitalController extends Beacon {
             TextField targetPosX = new TextField(String.valueOf(target.x), Styles.defaultField);
             TextField targetPosY = new TextField(String.valueOf(target.y), Styles.defaultField);
             // Labels
-            Label xLabel = new Label("x", Styles.defaultLabel);
-            Label yLabel = new Label("y", Styles.defaultLabel);
+            Label xLabel = new Label(Core.bundle.get("label.target-x"), Styles.defaultLabel);
+            Label yLabel = new Label(Core.bundle.get("label.target-y"), Styles.defaultLabel);
             // Filter input to digits only
             targetPosX.setFilter(TextField.TextFieldFilter.digitsOnly);
             targetPosY.setFilter(TextField.TextFieldFilter.digitsOnly);

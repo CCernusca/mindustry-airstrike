@@ -3,6 +3,7 @@ package airstrike.blocks;
 import airstrike.OrbitalData;
 import airstrike.items.AirstrikeWeapon;
 import airstrike.content.AirstrikeItems;
+import arc.Core;
 import arc.scene.ui.Button;
 import arc.scene.ui.Label;
 import arc.scene.ui.ScrollPane;
@@ -33,7 +34,7 @@ public class OrbitalMonitor extends Block {
             // Create a Label & Background for the title
             Table titleBackground = new Table();
             titleBackground.background(Styles.black6);
-            Label titleLabel = new Label("Available Weapons", Styles.defaultLabel);
+            Label titleLabel = new Label(Core.bundle.get("label.available-weapons"), Styles.defaultLabel);
             titleBackground.add(titleLabel);
             table.add(titleBackground).size(200f, 50f).row();
 
@@ -51,7 +52,7 @@ public class OrbitalMonitor extends Block {
                     Log.err("Invalid weapon");
                     continue;
                 }
-                Label label = new Label(weapon.localizedName, Styles.defaultLabel);
+                Label label = new Label(Core.bundle.format("label.weapon-name", weapon.localizedName), Styles.defaultLabel);
                 label.setAlignment(Align.center, Align.center);
                 weaponsTable.add(label).pad(10).row();
             }
@@ -65,7 +66,7 @@ public class OrbitalMonitor extends Block {
             // Create a Table to hold the "Close" button
             Table buttonTable = new Table();
             // Create the "Close" button
-            Button closeButton = new TextButton("Close", Styles.defaultt);
+            Button closeButton = new TextButton(Core.bundle.get("button.close"), Styles.defaultt);
             // Deselects the block and closes the configuration UI
             closeButton.clicked(this::deselect);
             // Add the "Close" button to the buttonTable

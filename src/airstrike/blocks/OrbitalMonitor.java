@@ -1,5 +1,6 @@
 package airstrike.blocks;
 
+import airstrike.AirstrikeUtils;
 import airstrike.OrbitalData;
 import airstrike.items.AirstrikeWeapon;
 import airstrike.content.AirstrikeItems;
@@ -45,6 +46,13 @@ public class OrbitalMonitor extends Block {
 
             // Retrieve the available airstrike weapons
             LinkedList<String> weapons = OrbitalData.getOrbitalWeapons();
+            if (weapons == null) {
+                // Handle case where location is not in data
+                // Bug finding credit: BlueTheCube
+                Log.err("Location " + AirstrikeUtils.getLocation() + " not in orbital data, trying to correct data...");
+                OrbitalData.correctOrbitalData();
+                weapons = new LinkedList<>();
+            }
             // Iterate through the weapons and add them to the weaponsTable
             for (String weaponName : weapons) {
                 AirstrikeWeapon weapon = AirstrikeItems.getWeapon(weaponName);

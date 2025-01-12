@@ -90,7 +90,13 @@ public class OrbitalData {
      * @return a list of weapon IDs for the current planet or sector, or null if the location has no orbital data
      */
     public static LinkedList<String> getOrbitalWeapons() {
-        return getOrbitalWeapons(AirstrikeUtils.getLocation());
+        LinkedList<String> orbitalWeapons = getOrbitalWeapons(AirstrikeUtils.getLocation());
+        if (orbitalWeapons == null) {
+            Log.err("Location " + AirstrikeUtils.getLocation() + " not in orbital data, trying to correct data...");
+            correctOrbitalData();
+            return new LinkedList<>();
+        }
+        return orbitalWeapons;
     }
 
     /**

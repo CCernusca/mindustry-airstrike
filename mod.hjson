@@ -18,7 +18,7 @@
   Orbital Weapons are monitored via the Orbital Monitor and can be called to strike using the Beacon and the Orbital Controller.
   '''
 
-  version: "1.0.1"
+  version: "1.0.2"
 
   minGameVersion: 146
 

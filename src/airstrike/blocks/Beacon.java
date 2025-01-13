@@ -1,5 +1,6 @@
 package airstrike.blocks;
 
+import airstrike.AirstrikeUtils;
 import airstrike.OrbitalData;
 import airstrike.items.AirstrikeWeapon;
 import airstrike.content.AirstrikeItems;
@@ -65,6 +66,13 @@ public class Beacon extends Block {
 
             // Update the weapons list
             LinkedList<String> orbitalWeapons = OrbitalData.getOrbitalWeapons();
+            if (orbitalWeapons == null) {
+                // Handle case where location is not in data
+                // Bug finding credit: BlueTheCube
+                Log.err("Location " + AirstrikeUtils.getLocation() + " not in orbital data, trying to correct data...");
+                OrbitalData.correctOrbitalData();
+                orbitalWeapons = new LinkedList<>();
+            }
             weapons.clear();
             for (String weaponName : orbitalWeapons) {
                 AirstrikeWeapon weapon = AirstrikeItems.getWeapon(weaponName);
